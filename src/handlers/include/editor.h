@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include"genlib.h"
+#include"cursor.h"
 
 void InputString(CURSOR_T *crst);
 
