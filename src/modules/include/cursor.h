@@ -11,7 +11,7 @@
 
 typedef struct{
     int PTR_1,PTR_2;
-    int X,Y;
+    double X,Y;
 } CURSOR_T;
 
 typedef struct{

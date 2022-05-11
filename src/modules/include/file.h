@@ -14,11 +14,11 @@
 //     string OriginText;
 // } TEXT_FILE;
 
-int GetStrText(string ptr);
+string GetStrText();
 
-void AddStrToText(string newstr,int ptr);
+int AddStrToText(string newstr,int ptr);
 
-void DeleteFromText(int ptr1,int ptr2);
+int DeleteFromText(int ptr1,int ptr2);
 
 bool OpenFile(string filepath);
 

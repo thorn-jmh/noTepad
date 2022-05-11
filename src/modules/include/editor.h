@@ -8,13 +8,12 @@
 #include"genlib.h"
 #include"cursor.h"
 
-void InputString(CURSOR_T *crst);
+void InputString(string newstr,CURSOR_T *crst);
 
 void DeletString(CURSOR_T *crst);
 
 void CopyString(CURSOR_T *crst);
 
 void PasteString(CURSOR_T *crst);
-
 
 #endif

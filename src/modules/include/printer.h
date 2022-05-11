@@ -6,14 +6,13 @@
 #include <stddef.h>
 
 #include"genlib.h"
+#include"cursor.h"
 
 typedef struct {
     int Tline,Fline,Cline;
 } LINE_T;
 
-void PrePrintText(string text,int offset,CURSOR_T *crst,MOUSE_T *mst,LINE_T *lnt);
-
-void PrintText(string text,int offset);
+void PrintText(string text,int offset,CURSOR_T *crst,MOUSE_T *mst,LINE_T *lnt);
 
 
 #endif
