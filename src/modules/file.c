@@ -7,6 +7,9 @@
 
 #include "genlib.h"
 #include "linkedlist.h"
+#include "cursor.h"
+
+CURSOR_T GetCursorStatus();
 
 #define INIT_FILEBUF_SIZE 2048
 
@@ -29,7 +32,9 @@ int AddStrToText(string newstr, int ptr);
 
 int DeleteFromText(int ptr1, int ptr2);
 
-static int AddStrToTextWithOutHis(string newstr, int ptr);
+static int AddStrToTextWithOutHis(string newstr, int ptr){
+  
+}
 
 static int DeleteFromTextWithOutHis(int ptr1, int ptr2);
 

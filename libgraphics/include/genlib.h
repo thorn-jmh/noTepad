@@ -46,6 +46,9 @@
  * Declaring it as a string emphasizes this atomicity.
  */
 
+typedef wchar_t Unicode;
+typedef Unicode *Ustring;
+
 typedef char *string;
 
 /*
