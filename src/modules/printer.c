@@ -58,4 +58,5 @@ void PrintText(string text,int offset,CURSOR_T *crst,MOUSE_T *mst,LINE_T *lnt){
 
     lnt->Tline=now_line;
     return;
+    //hhhh
 }
