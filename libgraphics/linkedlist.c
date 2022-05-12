@@ -24,6 +24,36 @@
  * This function allocates and returns an empty linked list (including a head
  * node only).
  */
+// TODO: new func
+int LinkedListLen(linkedlistADT head){
+	int ret=0;
+	while(head != NULL){
+		ret++;
+		head=head->next;
+	}
+	return ret-1;
+}
+
+
+
+void DeleteCurrentNode(linkedlistADT head, linkedlistADT currentnode){
+	linkedlistADT nodeptr, prenodeptr;
+
+	if (currentnode == NULL) return NULL;
+	prenodeptr = head;
+    nodeptr = head->next;
+	while (nodeptr != NULL) {
+		if (currentnode == nodeptr) break;
+	    prenodeptr = nodeptr;
+        nodeptr = nodeptr->next;
+	}
+	if (nodeptr == NULL) return ;
+	
+	prenodeptr->next=nodeptr->next;
+	free(nodeptr->dataptr);
+	free(nodeptr);
+	return ;
+}
 
 linkedlistADT NewLinkedList(void)
 {
@@ -72,6 +102,7 @@ linkedlistADT SearchNode(linkedlistADT head, void *obj,
 	nodeptr = head->next;
 	while (nodeptr != NULL) {
 		if ((*equalfunptr)(nodeptr->dataptr, obj)) return nodeptr;
+		nodeptr=nodeptr->next;
 	}
 	return NULL;
 }
@@ -108,7 +139,7 @@ linkedlistADT InsertNode(linkedlistADT head, linkedlistADT nodeptr, void *obj)
  * the pointer of the node if found, NULL otherwise.
  */
 
-linkedlistADT DeleteNode(linkedlistADT head, void *obj,
+void DeleteNode(linkedlistADT head, void *obj,
                          bool (*equalfunptr)(void *obj1, void *obj2))
 {
 	linkedlistADT nodeptr, prenodeptr;
@@ -121,9 +152,12 @@ linkedlistADT DeleteNode(linkedlistADT head, void *obj,
 	    prenodeptr = nodeptr;
         nodeptr = nodeptr->next;
 	}
-	if (nodeptr != NULL) /*found*/
-	    prenodeptr->next = nodeptr->next;
-	return nodeptr;
+	if (nodeptr == NULL) return ;
+	
+	prenodeptr->next=nodeptr->next;
+	free(nodeptr->dataptr);
+	free(nodeptr);
+	return ;
 }
 
 /*
