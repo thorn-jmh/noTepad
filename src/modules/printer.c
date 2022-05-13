@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "genlib.h"
+#include <stddef.h>
 #include "file.h"
 
 int judge(float mouse_x,float mouse_y,float x,float y,float width,float height){
@@ -47,8 +49,8 @@ void PrintText(string text,int offset,CURSOR_T *crst,MOUSE_T *mst,LINE_T *lnt){
                 MovePen(width*(now_width-ch_width),height*(top-now_line*interval));
                 if(position==crst->PTR_1){
                     if(position==crst->PTR_2){
-                        crst->X=width*(now_width-ch_width);
-                        crst->Y=height*(top-now_line*interval);
+                        crst->X=width*(now_width-ch_width);      //传输光标的位置，（光标左下角的位置），绝对位置（非百分比）
+                        crst->Y=height*(top-now_line*interval);  
                     }else isFill=1;                              //如果两个坐标不同，那就是选中了
                 }
                 if(position==crst->PTR_2) isFill=0;             //结束涂色，PTR_2指向的字符不涂色
