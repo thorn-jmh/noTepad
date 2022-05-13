@@ -11,6 +11,7 @@ void InputString(string newstr, CURSOR_T *crst) {
   // history
 
   // TODO: focus
+  // TODO: cursor get
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);

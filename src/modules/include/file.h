@@ -7,22 +7,15 @@
 
 #include"genlib.h"
 
-//TODO: INIT_FILEBUF_SIZE 2048
-
-// typedef struct{
-//     int TLength,UnderL;
-//     string OriginText;
-// } TEXT_FILE;
-
 string GetStrText();
 
 int AddStrToText(string newstr,int ptr);
 
 int DeleteFromText(int ptr1,int ptr2);
 
-bool OpenFile(string filepath);
+bool OpenTheFile(string filepath);
 
-bool SaveFile(string filepath);
+bool SaveTheFile(string filepath);
 
 
 

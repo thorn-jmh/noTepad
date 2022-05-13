@@ -51,6 +51,9 @@ linkedlistADT NewLinkedList(void);
  * This function frees the storage associated with linked list.
  */
 
+int LinkedListLen(linkedlistADT head);
+void DeleteCurrentNode(linkedlistADT head, linkedlistADT currentnode);
+
 void FreeLinkedList(linkedlistADT linkedlist);
 
 /*
@@ -83,7 +86,7 @@ linkedlistADT InsertNode(linkedlistADT linkedlist, linkedlistADT nodeptr, void *
  * the pointer of the node if found, NULL otherwise.
  */
 
-linkedlistADT DeleteNode(linkedlistADT linkedlist, void *obj,
+void DeleteNode(linkedlistADT linkedlist, void *obj,
                          bool (*equalfunptr)(void *obj1, void *obj2));
 
 /*
