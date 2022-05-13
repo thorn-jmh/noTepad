@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cursor.h"
 #include "genlib.h"
 #include "linkedlist.h"
-#include "cursor.h"
 
 CURSOR_T GetCursorStatus();
 
@@ -16,97 +16,92 @@ CURSOR_T GetCursorStatus();
 #define UNSAVED_FILE "unsaved_new_file"
 
 typedef struct {
-  string filename;
+  Ustring filename;
   int TLength, UnderL;
   bool is_save;
-  char OriginText[0];
+  Unicode OriginText[0];
 } * TEXT_FILE;
 
 TEXT_FILE CurrentFile;
 
-linkedlistADT FILES_LIST, CURRENT_FILE_P;
+linkedlistADT FILES_LIST, FILE_NODE;
 
-string GetStrText();
+Ustring GetStrText();
 
-int AddStrToText(string newstr, int ptr);
+int AddStrToText(Ustring newstr, int ptr);
 
 int DeleteFromText(int ptr1, int ptr2);
 
-static int AddStrToTextWithOutHis(string newstr, int ptr){
-  
-}
+static int AddStrToTextWithOutHis(Ustring newstr, int ptr) {}
 
 static int DeleteFromTextWithOutHis(int ptr1, int ptr2);
 
-
-
-
 bool InitFileSys() {
   FILES_LIST = NewLinkedList();
-  CURRENT_FILE_P = NULL;
+  FILE_NODE = NULL;
 }
 
-int GetFilesNum(){
-  return LinkedListLen(FILES_LIST);
+int GetFilesNum() { return LinkedListLen(FILES_LIST); }
+
+bool ChangeCurrentFile(int ith) {
+  FILE_NODE = (TEXT_FILE)ithNodeobj(FILES_LIST, ith);
 }
 
-bool ChangeCurrentFile(int ith){
-  CURRENT_FILE_P = (TEXT_FILE)ithNodeobj(FILES_LIST,ith);
-}
-
-bool OpenTheFile(string filepath) {
+bool OpenTheFile(Ustring filepath) {
+  // TODO: different file sys
   FILE *file = fopen(filepath, "r");
   if (file == NULL) {
     return FALSE;
   }
 
-  string ts;
+  Ustring ts;
   CurrentFile = (TEXT_FILE)malloc(sizeof(*(TEXT_FILE)NULL) +
-                                  (INIT_FILEBUF_SIZE + 1) * sizeof(char));
-  CURRENT_FILE_P = InsertNode(FILES_LIST, NULL, CurrentFile);
+                                  (INIT_FILEBUF_SIZE + 1) * sizeof(Unicode));
+  FILE_NODE = InsertNode(FILES_LIST, NULL, CurrentFile);
   CurrentFile->TLength = 0, CurrentFile->UnderL = INIT_FILEBUF_SIZE;
   CurrentFile->filename = UNSAVED_FILE;
-  ts = (string)malloc((strlen(filepath) + 1) * sizeof(char));
+  ts = (Ustring)malloc((strlen(filepath) + 1) * sizeof(Unicode));
   strcpy(ts, filepath);
   if (filepath != "") CurrentFile->filename = ts;
 
   int ch;
-  ts = (string)malloc(2 * sizeof(char));
-  *(ts + 1) = '/0';
+  ts = (Ustring)malloc(2 * sizeof(Unicode));
+  *(ts + 1) = '\0';
   while ((ch = fgetc(file)) != EOF) {
-    *ts = (char)ch;
+    *ts = (Unicode)ch;
     AddStrToTextWithOutHis(ts, CurrentFile->TLength);
   }
 
   return TRUE;
 }
 
-bool SaveTheFile(string filepath) {
-  if (filepath == ""){
+bool SaveTheFile(Ustring filepath) {
+  if (filepath == L"") {
     filepath = CurrentFile->filename;
   }
-  FILE *file= fopen(filepath,"w");  
+  FILE *file;
+  bool err = fopen_s(&file,filepath
   if (file == NULL) {
     return FALSE;
   }
 
-  if (fputs((string)CurrentFile->OriginText,file)<0){
+  if (fputws((Ustring)CurrentFile->OriginText, file) < 0) {
     return FALSE;
   }
 
-  CurrentFile->is_save=TRUE;
+  CurrentFile->is_save = TRUE;
   return TRUE;
 }
 
-bool CloseTheFile(bool force){
-  if(!(CurrentFile->is_save || force)){
+bool CloseTheFile(bool force) {
+  if (!(CurrentFile->is_save || force)) {
     return FALSE;
   }
 
   free(CurrentFile->filename);
-  DeleteCurrentNode(FILES_LIST,CURRENT_FILE_P);
-  CURRENT_FILE_P=FILES_LIST->next;
-  
+  DeleteCurrentNode(FILES_LIST, FILE_NODE);
+  FILE_NODE = FILES_LIST->next;
+
   return TRUE;
 }
 
@@ -119,7 +114,7 @@ struct DLIST_HIS {
   HISTORY type;
   int ptrs;
   DLIST_HIS nxt, frt;
-  char content[0];
+  Unicode content[0];
 };
 
 /////////// history /////////////
@@ -132,12 +127,12 @@ static DLIST_HIS NewHistoryList() {
 
 // return new head node, also new current node
 static DLIST_HIS AddNewHistory(DLIST_HIS headN, DLIST_HIS currentN,
-                               HISTORY type, int ptrs, string content) {
+                               HISTORY type, int ptrs, Ustring content) {
   headN = reverseUntil(headN, currentN);
   headN = addNewNode(headN, strlen(content));
   headN->ptrs = ptrs;
   headN->type = type;
-  strcpy((string)headN->content, content);
+  strcpy((Ustring)headN->content, content);
 
   return headN;
 }
@@ -206,7 +201,7 @@ static DLIST_HIS reverseUntil(DLIST_HIS headN, DLIST_HIS currentN) {
 // return new head
 static DLIST_HIS addNewNode(DLIST_HIS headN, int contentL) {
   DLIST_HIS np = (DLIST_HIS)malloc(sizeof(*(DLIST_HIS)NULL) +
-                                   (contentL + 1) * sizeof(char));
+                                   (contentL + 1) * sizeof(Unicode));
   np->frt = NULL;
   np->nxt = headN;
   if (headN != NULL) {

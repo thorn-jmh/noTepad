@@ -7,15 +7,15 @@
 
 #include"genlib.h"
 
-string GetStrText();
+Ustring GetStrText();
 
-int AddStrToText(string newstr,int ptr);
+int AddStrToText(Ustring newstr,int ptr);
 
 int DeleteFromText(int ptr1,int ptr2);
 
-bool OpenTheFile(string filepath);
+bool OpenTheFile(Ustring filepath);
 
-bool SaveTheFile(string filepath);
+bool SaveTheFile(Ustring filepath);
 
 
 

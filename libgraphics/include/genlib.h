@@ -51,6 +51,10 @@ typedef Unicode *Ustring;
 
 typedef char *string;
 
+Ustring String2Ustring(string str);
+string Ustring2string(Ustring str);
+
+
 /*
  * Type: stream
  * ------------
