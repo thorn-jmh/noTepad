@@ -24,7 +24,7 @@ typedef struct {
   int Tline, Fline, Cline;
 } LINE_T;
 
-typedef enum { UP, LEFT, RIGHT, DOWN } DIRECT_KEY;
+typedef enum { UP, LEFT, RIGHT, DOWN } DIRECT_KEY;//这个先不管它
 
 CURSOR_T *GetCurrentCursor(void);
 
