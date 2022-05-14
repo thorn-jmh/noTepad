@@ -1403,7 +1403,7 @@ static void DisplayText(double x, double y, string text)
     SetTextBB(&r, x, y, text);
     InvalidateRect(graphicsWindow, &r, TRUE);
     SetBkMode(osdc, TRANSPARENT);
-    TextOut(osdc, ScaleX(x), ScaleY(y) - fontTable[currentFont] .ascent, text, strlen(text));
+    TextOutW(osdc, ScaleX(x), ScaleY(y) - fontTable[currentFont] .ascent, text, wcslen(text));
     SetBkMode(osdc, OPAQUE);
 }
 
@@ -1596,7 +1596,7 @@ static void SetTextBB(RECT *rp, double x, double y, string text)
     SIZE textSize;
     int ix, iy;
 
-    if (!GetTextExtentPoint(osdc, text, strlen(text), &textSize)) {
+    if (!GetTextExtentPointW(osdc, text, wcslen(text), &textSize)) {
         Error("Internal error: Text size calculation failed");
     }
     ix = ScaleX(x);

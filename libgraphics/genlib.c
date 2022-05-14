@@ -18,18 +18,6 @@
 #include "exception.h"
 #include "gcalloc.h"
 
-Ustring String2Ustring(string str) {
-  int len = strlen(str) + 1;
-  string ret = (string)melloc(len * sizeof(Unicode));
-  for (int i = 0; i <= len; i++) {
-    *(ret + 2 * i) = 0;
-    *(ret + 2 * i + 1) = str + i;
-  }
-  return (Ustring)ret;
-}
-string Ustring2string(Ustring str) { 
-    int len = lstrlenW(str); 
-}
 
 /*
  * Constants:
@@ -40,6 +28,36 @@ string Ustring2string(Ustring str) {
 
 #define ErrorExitStatus 1
 #define MaxErrorMessage 500
+
+
+////////////////////
+
+Ustring String2Ustring(string str){
+  int size=MultiByteToWideChar(65001,0,str,-1,NULL,0);
+  if (size<=0){
+    Error("failed to convert str to ustr");
+    return L"";
+  }
+  Ustring ustr=(Ustring)malloc(size*sizeof(Unicode));
+  MultiByteToWideChar(65001,0,str,-1,ustr,size);
+  return ustr;
+}
+
+string Ustring2string(Ustring ustr){
+  int size=WideCharToMultiByte(65001,0,ustr,-1,NULL,0,NULL,NULL);
+  if (size<=0){
+    Error("failed to convert ustr to str");
+    return "";
+  }
+  string str=(string)malloc(size*sizeof(char));
+  WideCharToMultiByte(65001,0,ustr,-1,str,size,NULL,NULL);
+  return ustr;
+}
+
+
+////////////////////
+
+
 
 /* Section 1 -- Define new "primitive" types */
 

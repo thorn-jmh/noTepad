@@ -9,14 +9,24 @@
 
 Ustring GetStrText();
 
-int AddStrToText(Ustring newstr,int ptr);
+void AddStrToText(Ustring newstr,size_t ptr);
 
-int DeleteFromText(int ptr1,int ptr2);
+void DeleteFromText(size_t ptr1,size_t ptr2);
+
+bool InitFileSys();
+
+int GetFilesNum();
+
+bool ChangeCurrentFile(int ith);
 
 bool OpenTheFile(Ustring filepath);
 
 bool SaveTheFile(Ustring filepath);
 
+bool CloseTheFile(bool force);
 
+void RedoHistory();
+
+void UndoHistory();
 
 #endif

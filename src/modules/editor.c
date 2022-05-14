@@ -7,23 +7,23 @@
 
 #include "file.h"
 
-void InputString(string newstr, CURSOR_T *crst) {
-  // history
+static string GetStrFromClipBoard();
+static bool AddStrToClipBoard(string str);
 
   // TODO: focus
-  // TODO: cursor get
+
+void InputString(string newstr) {
+  CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
 
   DeleteFromText(ptrf, ptrb);
-  ptrf=AddStrToText(newstr, ptrf);
-
-  crst->PTR_1 = ptrf;
-  crst->PTR_2 = ptrf;
+  AddStrToText(newstr, ptrf);
 }
 
-void DeletString(CURSOR_T *crst) {
+void DeletString() {
+  CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
@@ -33,40 +33,33 @@ void DeletString(CURSOR_T *crst) {
   }
 
   DeleteFromText(ptrf, ptrb);
-
-  crst->PTR_1 = ptrf;
-  crst->PTR_2 = ptrf;
 }
 
-void CopyString(CURSOR_T *crst){
+void CopyString() {
+  CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
 
-  string origText=GetStrText();
-  int len=ptrb-ptrf;
-  string text=(string)malloc(len);
-  memcpy(text,origText+ptrf,len);
+  string origText = GetStrText();
+  int len = ptrb - ptrf;
+  string text = (string)malloc(len);
+  memcpy(text, origText + ptrf, len);
   AddStrToClipBoard(text);
   free(text);
-
-  crst->PTR_1=ptrf;
-  crst->PTR_2=ptrb;
 }
 
-void PasteString(CURSOR_T *crst) {
+void PasteString() {
+  CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
 
-  DeleteFromText(ptrf,ptrb);
+  DeleteFromText(ptrf, ptrb);
   ptrb = ptrf;
   string newtext = GetStrFromClipBoard();
-  ptrf=AddStrToText(newtext,ptrf);
+  AddStrToText(newtext, ptrf);
   free(newtext);
-
-  crst->PTR_1=ptrf;
-  crst->PTR_2=ptrf;
 }
 
 static string GetStrFromClipBoard() {
@@ -82,19 +75,19 @@ static string GetStrFromClipBoard() {
     Error("failed to open clipboard");
     return "";
   }
-  if(!IsClipboardFormatAvailable(CF_TEXT)){
+  if (!IsClipboardFormatAvailable(CF_TEXT)) {
     Error("clipboard format invalid");
     return "";
   }
 
-  HGLOBAL hmem=GetClipboardData(CF_TEXT);
-  if (hmem==NULL){
+  HGLOBAL hmem = GetClipboardData(CF_TEXT);
+  if (hmem == NULL) {
     return "";
   }
   string pmem;
-  pmem=(string)GlobalLock(hmem);
+  pmem = (string)GlobalLock(hmem);
   clipboardbuf = (string)melloc(strlen(pmem));
-  memcpy(clipboardbuf,pmem,strlen(pmem));
+  memcpy(clipboardbuf, pmem, strlen(pmem));
   GlobalUnlock(hmem);
 
   return clipboardbuf;
