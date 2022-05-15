@@ -32,6 +32,21 @@
 
 ////////////////////
 
+Ustring Whatever2Ustring(void *str){
+  Ustring cstr1=(Ustring)str;
+  string cstr2=(string)str;
+  size_t len1,len2;
+  len1=wcslen(str);
+  len2=strlen(str);
+  if (len1==len2){
+    Ustring ustr=(Ustring)malloc((len1+1)*sizeof(Unicode));
+    wcscpy(ustr,cstr1);
+    return ustr;
+  } else{
+    return String2Ustring(cstr2);
+  }
+}
+
 Ustring String2Ustring(string str){
   int size=MultiByteToWideChar(65001,0,str,-1,NULL,0);
   if (size<=0){

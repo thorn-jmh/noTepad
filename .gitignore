@@ -35,6 +35,7 @@
 *.vscode
 
 # VS files
+x64/
 *.vs
 *.sln
 *.vcxproj*
@@ -49,4 +50,4 @@
 # Others
 temp.*
 temp/
-x64/
+qaq.*

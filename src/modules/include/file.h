@@ -7,11 +7,15 @@
 
 #include"genlib.h"
 
-Ustring GetStrText();
+//TODO: for debug
+#ifndef _cursor_h
+typedef struct {
+	size_t PTR_1, PTR_2;
+	double X, Y;
+} CURSOR_T;
 
-void AddStrToText(Ustring newstr,size_t ptr);
-
-void DeleteFromText(size_t ptr1,size_t ptr2);
+CURSOR_T* GetCurrentCursor();
+#endif
 
 bool InitFileSys();
 
@@ -19,11 +23,24 @@ int GetFilesNum();
 
 bool ChangeCurrentFile(int ith);
 
-bool OpenTheFile(Ustring filepath);
+bool OpenTheFile(string filepath, bool utf8);
 
-bool SaveTheFile(Ustring filepath);
+bool SaveTheFile(string filepath);
 
 bool CloseTheFile(bool force);
+
+
+
+
+Ustring GetStrText();
+
+void AddStrToText(Ustring newstr,size_t ptr);
+
+void DeleteFromText(size_t ptr1,size_t ptr2);
+
+
+
+
 
 void RedoHistory();
 

@@ -6,14 +6,13 @@
 #include <stddef.h>
 
 #include"genlib.h"
-#include"cursor.h"
 
-void InputString(string newstr);
+void InputUstring(Ustring newstr);
 
-void DeletString();
+void DeleteUstring();
 
-void CopyString();
+void CopyUstring();
 
-void PasteString();
+void PasteUstring();
 
 #endif
