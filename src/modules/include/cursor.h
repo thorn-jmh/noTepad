@@ -20,16 +20,11 @@ typedef struct {
   int X, Y;
 } MOUSE_T;
 
-typedef struct {
-  int Tline, Fline, Cline;
-} LINE_T;
 
 typedef enum { UP, LEFT, RIGHT, DOWN } DIRECT_KEY;//这个先不管它
 
-CURSOR_T *GetCurrentCursor(void);
+CURSOR_T *GetCurrentCursor(void);//获取光标指针
 
-LINE_T *GetCurrentLine(void);
-
-MOUSE_T *GetCurrentMouse(void);
+MOUSE_T *GetCurrentMouse(void);//获取鼠标信息指针
 
 #endif
