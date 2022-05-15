@@ -8,19 +8,19 @@
 #include "genlib.h"
 #include <stddef.h>
 #include "file.h"
-int fmax(int a,int b){    //取大函数
+size_t fmax(size_t a,size_t b){    //取大函数
     if(a>b) return a;
     return b;
 }
 
-int fmin(int a,int b){    //取小函数
+size_t fmin(size_t a,size_t b){    //取小函数
     if(a<b) return a;
     return b;
 }
 
 int judge(float mouse_x,float mouse_y,float x,float y,float width,float height,Unicode ch){
     if(ch=='\r'||ch=='\n'){
-        if(mouse_y>=y&&mouse_y<=y+height) return 1;
+        if(mouse_y>=y&&mouse_y<=y+height&&mouse_x>=x) return 1;
     }else{
         if(mouse_x>=x&&mouse_x<=x+width&&mouse_y>=y&&mouse_y<=y+height) return 1;
     }
@@ -33,6 +33,7 @@ void PrintText(string text,int offset){    //后面三个删掉，用get获得
     LINE_T *lnt;lnt=GetCurrentLine();
     int isFill=0;                  //是否填充字体
     int isCursor=0;                 //光标是否在显示的行内
+    int notJudged=1;               //鼠标坐标还未赋值
     Unicode ch,str[2];                 //一个字符一个字符地读,由str输出,真就是一个字符一个字符输出
     str[1]='\0';                    //str后面一个字符始终为结束符 
     
@@ -53,9 +54,17 @@ void PrintText(string text,int offset){    //后面三个删掉，用get获得
         ch_width=TextStringWidth(str)/width;
         now_width+=ch_width;
         
+        if(crst->PTR_1>crst->PTR_2){             //保证PTR_1不大于PTR_2
+            size_t temp;
+            temp=crst->PTR_1;
+            crst->PTR_1=crst->PTR_2;
+            crst->PTR_2=temp;
+        }
 
-        if(judge(mst->X/width,mst->Y/height,now_width,top-now_line*interval,ch_width,ch_height,ch)) mouse_position=position-1;  // 判断mouse的位置
-        
+        if(judge(mst->X/width,mst->Y/height,now_width,top-now_line*interval-descent,ch_width,ch_height,ch)&&notJudged){
+            mst->PTR=position-1;  // 判断mouse的位置
+            notJudged=0;
+        }
         
         if(now_line>=lnt->Fline&&now_line<lnt->Cline+lnt->Fline){                                      //当前行数没超过最大行数，能输出
             if(ch=='\r'||ch=='\n'){                              //遇到换行符
@@ -66,17 +75,18 @@ void PrintText(string text,int offset){    //后面三个删掉，用get获得
                 now_width=left;
                 position--;                                     //这个是回拨一个position,因为这个字符没输出，所以想让下一次录入仍为这个字符                                 
             }else{                                              //继续走
-                MovePen(width*(now_width-ch_width),height*(top-now_line*interval-ascent));
+                MovePen(width*(now_width-ch_width),height*(top-now_line*interval));
                 if(position==crst->PTR_1){
+                    isCursor=1;
                     if(position==crst->PTR_2){
                         crst->X=width*(now_width-ch_width);      //传输光标的位置，（光标左下角的位置），绝对位置（非百分比）
-                        crst->Y=height*(top-now_line*interval);  
+                        crst->Y=height*(top-now_line*interval-descent);  
                     }else isFill=1;                              //如果两个坐标不同，那就是选中了
                 }
                 if(position==crst->PTR_2) isFill=0;             //结束涂色，PTR_2指向的字符不涂色
                 if(isFill){                                      //将选中的地方涂色
                     SetPenColor("Blue");
-                    drawRectangle(width*(now_width-ch_width),height*(top-now_line*interval),ch_width*width,ch_height*height,1);
+                    drawRectangle(width*(now_width-ch_width),height*(top-now_line*interval-descent),ch_width*width,ch_height*height,1);
                     SetPenColor("Black");
                 }
                 MovePen(width*(now_width-ch_width),height*(top-now_line*interval));
