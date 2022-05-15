@@ -7,6 +7,7 @@
 
 #include"genlib.h"
 #include"cursor.h"
+#include"pages.h"
 
 void PrintText(string text,int offset,CURSOR_T *crst,MOUSE_T *mst,LINE_T *lnt);
 
