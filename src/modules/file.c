@@ -109,7 +109,7 @@ int GetFilesNum() { return LinkedListLen(FILES_LIST); }
 
 bool ChangeCurrentFile(int ith)
 {
-  FILE_NODE = ithNodeobj(FILES_LIST, ith);
+  FILE_NODE = ithNode(FILES_LIST, ith);
   UpdateFileSys();
 }
 
@@ -194,6 +194,7 @@ bool CloseTheFile(bool force)
 
   free(CurrentFile->filename);
   freeHisList(HIS_LIST);
+  HIS_LIST = NULL;
   DeleteCurrentNode(FILES_LIST, FILE_NODE);
   FILE_NODE = FILES_LIST->next;
   UpdateFileSys();

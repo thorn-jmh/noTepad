@@ -432,7 +432,7 @@ void EndFilledRegion(void)
 
 /* Section 4 -- String functions */
 
-void DrawTextString(string text)
+void DrawTextString(Ustring text)
 {
     InitCheck();
     if (regionState != NoRegion) {
@@ -442,7 +442,7 @@ void DrawTextString(string text)
     cx += TextStringWidth(text);
 }
 
-double TextStringWidth(string text)
+double TextStringWidth(Ustring text)
 {
     RECT r;
 
@@ -1395,7 +1395,7 @@ static void RenderArc(double x, double y, double rx, double ry,
  * font and size.  The hard work is done in DisplayFont.
  */
 
-static void DisplayText(double x, double y, string text)
+static void DisplayText(double x, double y, Ustring text)
 {
     RECT r;
 
@@ -1591,7 +1591,7 @@ static void SetArcBB(RECT *rp, double xc, double yc,
  * box of the text string using the current font and size.
  */
 
-static void SetTextBB(RECT *rp, double x, double y, string text)
+static void SetTextBB(RECT *rp, double x, double y, Ustring text)
 {
     SIZE textSize;
     int ix, iy;

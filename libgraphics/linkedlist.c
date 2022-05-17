@@ -187,7 +187,7 @@ void TraverseLinkedList(linkedlistADT head, void (*traversefunptr)(void *obj))
  * This function return the pointer of the index-th node of the linked list.
  */
 
-void *ithNodeobj(linkedlistADT head, int index)
+void *ithNode(linkedlistADT head, int index)
 {
 	linkedlistADT nodeptr;
 	int count = 0;
@@ -197,9 +197,7 @@ void *ithNodeobj(linkedlistADT head, int index)
 		if (++count == index) break;
 		nodeptr = nodeptr->next;
 	}
-	if (nodeptr != NULL)
-        return nodeptr->dataptr;
-	return NULL;
+	return nodeptr;
 }
 
 /*
