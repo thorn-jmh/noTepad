@@ -4,11 +4,14 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 //#include "cursor.h"
 #include "genlib.h"
 #include "linkedlist.h"
 
+// for debug
+#ifndef _cursor_h
 static CURSOR_T aqaq = {
     0, 0, 0, 0};
 
@@ -16,9 +19,10 @@ CURSOR_T *GetCurrentCursor()
 {
   return &aqaq;
 }
+#endif
 
+#define MAX_TIME_INTERVAL 1
 #define INIT_FILEBUF_SIZE 2048
-
 #define UNSAVED_NEW_FILE "new_file"
 
 typedef enum
@@ -31,6 +35,8 @@ typedef struct _DLIST_HIS *DLIST_HIS;
 struct _DLIST_HIS
 {
   HISTORY_T type;
+  int order;
+  time_t time;
   size_t ptrs;
   DLIST_HIS nxt, frt;
   Unicode content[0];
@@ -45,11 +51,13 @@ typedef struct
   Unicode OriginText[0];
 } * TEXT_FILE;
 
-TEXT_FILE CurrentFile;
+static TEXT_FILE CurrentFile;
 
-linkedlistADT FILES_LIST, FILE_NODE;
+static linkedlistADT FILES_LIST, FILE_NODE;
 
-DLIST_HIS HIS_LIST, HIS_NODE;
+static DLIST_HIS HIS_LIST, HIS_NODE;
+
+static time_t timestp;
 
 static void AddStrToTextWithOutHis(Ustring newstr, size_t ptr);
 static void DeleteFromTextWithOutHis(size_t ptr1, size_t ptr2);
@@ -92,6 +100,7 @@ void DeleteFromText(size_t ptr1, size_t ptr2)
 
 bool InitFileSys()
 {
+  timestp = time(NULL);
   FILES_LIST = NewLinkedList();
   FILE_NODE = NULL;
 }
@@ -196,34 +205,41 @@ void RedoHistory()
 {
   if (HIS_NODE->frt == HIS_LIST)
     return;
-  HIS_NODE = HIS_NODE->frt;
-  HISTORY_T undoT = HIS_NODE->type;
-  if (undoT == ADD_HIS)
+
+  do
   {
-    AddStrToTextWithOutHis(HIS_NODE->content, HIS_NODE->ptrs);
-  }
-  else if (undoT == DEL_HIS)
-  {
-    DeleteFromTextWithOutHis(HIS_NODE->ptrs,
-                             HIS_NODE->ptrs + wcslen(HIS_NODE->content));
-  }
+    HIS_NODE = HIS_NODE->frt;
+    HISTORY_T undoT = HIS_NODE->type;
+    if (undoT == ADD_HIS)
+    {
+      AddStrToTextWithOutHis(HIS_NODE->content, HIS_NODE->ptrs);
+    }
+    else if (undoT == DEL_HIS)
+    {
+      DeleteFromTextWithOutHis(HIS_NODE->ptrs,
+                               HIS_NODE->ptrs + wcslen(HIS_NODE->content));
+    }
+  } while (HIS_NODE->frt != HIS_LIST && HIS_NODE->frt->order == HIS_NODE->order);
 }
 
 void UndoHistory()
 {
-  if (HIS_NODE->nxt==NULL)
+  if (HIS_NODE->nxt == NULL)
     return;
-  HISTORY_T undoT = HIS_NODE->type ^ 1;
-  if (undoT == ADD_HIS)
+  do
   {
-    AddStrToTextWithOutHis(HIS_NODE->content, HIS_NODE->ptrs);
-  }
-  else if (undoT == DEL_HIS)
-  {
-    DeleteFromTextWithOutHis(HIS_NODE->ptrs,
-                             HIS_NODE->ptrs + wcslen(HIS_NODE->content));
-  }
-  HIS_NODE = HIS_NODE->nxt;
+    HISTORY_T undoT = HIS_NODE->type ^ 1;
+    if (undoT == ADD_HIS)
+    {
+      AddStrToTextWithOutHis(HIS_NODE->content, HIS_NODE->ptrs);
+    }
+    else if (undoT == DEL_HIS)
+    {
+      DeleteFromTextWithOutHis(HIS_NODE->ptrs,
+                               HIS_NODE->ptrs + wcslen(HIS_NODE->content));
+    }
+    HIS_NODE = HIS_NODE->nxt;
+  } while (HIS_NODE->nxt != NULL && HIS_NODE->order == HIS_NODE->frt->order);
 }
 
 //////////////////////////////////////////
@@ -322,14 +338,17 @@ static DLIST_HIS NewHisList()
   DLIST_HIS np = (DLIST_HIS)malloc(sizeof(*(DLIST_HIS)NULL));
   np->frt = NULL;
   np->nxt = NULL;
-  addNewNode(np,NULL,"");
+  np->order = -1;
+  np->time = -1;
+  addNewNode(np, NULL, "");
   return np;
 }
 
 // return new head node, also new current node
 static void AddNewHistory(HISTORY_T type, int ptrs, Ustring content)
 {
-  if(wcslen(content)<=0) return;
+  if (wcslen(content) <= 0)
+    return;
   HIS_NODE = addNewNode(HIS_LIST, HIS_NODE, content);
   HIS_NODE->ptrs = ptrs;
   HIS_NODE->type = type;
@@ -368,10 +387,23 @@ static DLIST_HIS addNewNode(DLIST_HIS headN, DLIST_HIS currentN,
 
   deleteUntil(headN, currentN);
   headN->nxt = np;
-  if (currentN != NULL)
-    currentN->frt = np;
   np->frt = headN;
   np->nxt = currentN;
+  if (currentN == NULL)
+  {
+    np->order = 0;
+    np->time = -1;
+    return np;
+  }
+  currentN->frt = np;
+
+  time_t ttt = time(&timestp);
+  np->time = ttt;
+  np->order = currentN->order + 1;
+  if (np->time - currentN->time <= MAX_TIME_INTERVAL)
+  {
+    np->order--;
+  }
   return np;
 }
 
