@@ -8,6 +8,7 @@
 #include "genlib.h"
 #include <stddef.h>
 #include "file.h"
+#include <locale.h>
 size_t fmax(size_t a,size_t b){    //取大函数
     if(a>b) return a;
     return b;
@@ -62,7 +63,7 @@ void PrintText(string text,int offset){    //后面三个删掉，用get获得
         }
 
         if(judge(mst->X/width,mst->Y/height,now_width,top-now_line*interval-descent,ch_width,ch_height,ch)&&notJudged){
-            mst->PTR=position-1;  // 判断mouse的位置
+            mst->PTR=position-1;                                                                       // 判断mouse的位置
             notJudged=0;
         }
         
@@ -102,6 +103,11 @@ void PrintText(string text,int offset){    //后面三个删掉，用get获得
                 position--;                                  
             }else{}
         }
+    }
+
+    if(isCursor==0){             //此时光标不再可显示的范围内
+        crst->X=-1;
+        crst->Y==1;
     }
 
     lnt->Tline=now_line;
