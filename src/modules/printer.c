@@ -28,7 +28,31 @@ int judge(float mouse_x,float mouse_y,float x,float y,float width,float height,U
     return 0;
 }
 
-void PrintText(string text,int offset){    //后面三个删掉，用get获得
+static void drawRectangle(double x, double y, double w, double h, int fillflag)
+{
+    MovePen(x, y);
+    if (fillflag) StartFilledRegion(1);
+    {
+        DrawLine(0, h);
+        DrawLine(w, 0);
+        DrawLine(0, -h);
+        DrawLine(-w, 0);
+    }
+    if (fillflag) EndFilledRegion();
+}
+
+//void PrintUnicodeText(Ustring text, int offset) {
+//    CURSOR_T* crst = GetCurrentCursor();
+//    MOUSE_T* mst = GetCurrentMouse();
+//    LINE_T* lnt = GetCurrentLine();
+//    Unicode ch;
+//    Ustring outputch = (Ustring)malloc(2 * sizeof(Unicode));
+//    *(outputch + 1) = L'\0';
+//
+//    while(*text != )
+//}
+
+void PrintText(Ustring text,int offset){    //后面三个删掉，用get获得
     CURSOR_T *crst;crst=GetCurrentCursor();
     MOUSE_T *mst;mst=GetCurrentMouse();
     LINE_T *lnt;lnt=GetCurrentLine();
@@ -52,7 +76,8 @@ void PrintText(string text,int offset){    //后面三个删掉，用get获得
     while((ch=text[position++])!=0){
 
         str[0]=ch;
-        ch_width=TextStringWidth(str)/width;
+        ch_width = TextStringWidth(str);
+        ch_width /= width;
         now_width+=ch_width;
         
         if(crst->PTR_1>crst->PTR_2){             //保证PTR_1不大于PTR_2

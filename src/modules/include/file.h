@@ -8,20 +8,20 @@
 #include"genlib.h"
 
 //TODO: for debug
-#ifndef _cursor_h
-typedef struct {
-	size_t PTR_1, PTR_2;
-	double X, Y;
-} CURSOR_T;
-
-CURSOR_T* GetCurrentCursor();
-#endif
+//#ifndef _cursor_h
+//typedef struct {
+//	size_t PTR_1, PTR_2;
+//	double X, Y;
+//} CURSOR_T;
+//
+//CURSOR_T* GetCurrentCursor();
+//#endif
 
 bool InitFileSys();
 
 int GetFilesNum();
 
-bool ChangeCurrentFile(int ith);
+void ChangeCurrentFile(int ith);
 
 bool OpenTheFile(string filepath, bool utf8);
 

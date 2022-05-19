@@ -47,12 +47,13 @@ int NowFound()
 size_t WhereFoundStr()
 {
     if (FOUND_NODE == NULL)
-        return wcslen(GetStrText()) + 1;
+        return wcslen(GetStrText());
     return ((REC_NODE)FOUND_NODE->dataptr)->ptr;
 }
 
 void NextFoundStr()
 {
+    if (FOUND_NODE == NULL) return;
     if (FOUND_NODE->next == NULL)
         FOUND_NODE = FOUND_LIST;
     FOUND_NODE = FOUND_NODE->next;
@@ -61,6 +62,7 @@ void NextFoundStr()
 
 void LastFoundStr()
 {
+    if (REC_LEN == 0) return;
     REC_NUM = (REC_NUM - 1 + REC_LEN) % REC_LEN;
     FOUND_NODE = ithNode(FOUND_LIST, REC_NUM + 1);
 }

@@ -47,7 +47,9 @@ void drawRect(double x, double y, double w, double h)
 double SliperLength()
 { //滑块的长度
     double windowh = GetWindowHeight() - toph;
-    double sl = ((double)theLine.Cline / (double)theLine.Tline) * windowh;
+    double sl = ((double)theLine.Cline / (double)theLine.Tline);
+    if (sl > 1.0) sl = 1.0;
+    sl *= windowh;
     return sl;
 };
 
@@ -56,7 +58,8 @@ double GetSliperInch()
     double inch;
     double windowh = GetWindowHeight() - toph;
     double sliperl = SliperLength();
-    inch = (windowh - sliperl) / (double)(theLine.Tline - 1);
+    if (theLine.Cline >= theLine.Tline) inch = 0;
+    else inch = (windowh - sliperl) / (double)(theLine.Tline - 1);
     return inch;
 };
 

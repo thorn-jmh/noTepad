@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "file.h"
+#include "cursor.h"
 
 static Ustring GetUstrFromClipBoard();
 static bool AddUstrToClipBoard(Ustring str);

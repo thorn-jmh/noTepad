@@ -6,10 +6,12 @@
 #include <stddef.h>
 
 #include"genlib.h"
+#include"graphics.h"
+#include"extgraph.h"
 #include"cursor.h"
 #include"pages.h"
 
-void PrintText(string text,int offset,CURSOR_T *crst,MOUSE_T *mst,LINE_T *lnt);
+void PrintText(Ustring text, int offset);
 
 
 #endif

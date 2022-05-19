@@ -6,20 +6,20 @@
 #include <stdlib.h>
 #include <time.h>
 
-//#include "cursor.h"
+#include "cursor.h"
 #include "genlib.h"
 #include "linkedlist.h"
 
 // for debug
-#ifndef _cursor_h
-static CURSOR_T aqaq = {
-    0, 0, 0, 0};
-
-CURSOR_T *GetCurrentCursor()
-{
-  return &aqaq;
-}
-#endif
+//#ifndef _cursor_h
+//static CURSOR_T aqaq = {
+//    0, 0, 0, 0};
+//
+//CURSOR_T *GetCurrentCursor()
+//{
+//  return &aqaq;
+//}
+//#endif
 
 #define MAX_TIME_INTERVAL 1
 #define INIT_FILEBUF_SIZE 2048
@@ -107,7 +107,7 @@ bool InitFileSys()
 
 int GetFilesNum() { return LinkedListLen(FILES_LIST); }
 
-bool ChangeCurrentFile(int ith)
+void ChangeCurrentFile(int ith)
 {
   FILE_NODE = ithNode(FILES_LIST, ith);
   UpdateFileSys();
