@@ -5,7 +5,7 @@
 
 #include "genlib.h"
 #include "file.h"
-#include "linkedlist.h"
+#include "finder.h"
 
 typedef struct
 {
@@ -14,24 +14,50 @@ typedef struct
 
 static linkedlistADT FOUND_LIST, FOUND_NODE;
 static int REC_LEN, REC_NUM;
+static linkedlistADT HIGHLIGHT;
 
-void FindSubStr(Ustring target)
+linkedlistADT GetCurrentHighlight()
+{
+    return CopyLinkedList(HIGHLIGHT);
+}
+
+void FindSubStr(string target)
 {
     FreeLinkedList(FOUND_LIST);
+    FreeLinkedList(HIGHLIGHT);
+    HIGHLIGHT = NewLinkedList();
     FOUND_LIST = NewLinkedList();
-    Ustring originText = GetStrText();
-    Ustring fstr = NULL;
+    string originText = GetStrText();
+    string fstr = NULL;
     size_t optr = 0;
-    while (fstr = wcsstr(originText + optr, target))
+    while (fstr = strstr(originText + optr, target))
     {
         REC_NODE tp = (REC_NODE)malloc(sizeof(*(REC_NODE)NULL));
         tp->ptr = fstr - originText;
-        optr = tp->ptr + wcslen(target);
+        optr = fstr - originText + strlen(target);
         InsertNode(FOUND_LIST, NULL, tp);
+
+        //HIGH LIGHT
+        size_t *tp2 = (size_t *)malloc(sizeof(size_t));
+        *tp2 = tp->ptr;
+        InsertNode(HIGHLIGHT, NULL, tp2);
+        tp2 = (size_t *)malloc(sizeof(size_t));
+        tp->ptr = optr;
+        *tp2 = tp->ptr;
+        InsertNode(HIGHLIGHT, NULL, tp2);
     }
     FOUND_NODE = FOUND_LIST->next;
     REC_LEN = LinkedListLen(FOUND_LIST);
     REC_NUM = 0;
+}
+
+void FreeFoundList()
+{
+    REC_LEN = REC_NUM = 0;
+    FreeLinkedList(FOUND_LIST);
+    FreeLinkedList(HIGHLIGHT);
+    FOUND_LIST = NULL;
+    HIGHLIGHT = NULL;
 }
 
 int TotalFound()
@@ -47,13 +73,14 @@ int NowFound()
 size_t WhereFoundStr()
 {
     if (FOUND_NODE == NULL)
-        return wcslen(GetStrText());
+        return strlen(GetStrText());
     return ((REC_NODE)FOUND_NODE->dataptr)->ptr;
 }
 
 void NextFoundStr()
 {
-    if (FOUND_NODE == NULL) return;
+    if (FOUND_NODE == NULL)
+        return;
     if (FOUND_NODE->next == NULL)
         FOUND_NODE = FOUND_LIST;
     FOUND_NODE = FOUND_NODE->next;
@@ -62,7 +89,8 @@ void NextFoundStr()
 
 void LastFoundStr()
 {
-    if (REC_LEN == 0) return;
+    if (REC_LEN == 0)
+        return;
     REC_NUM = (REC_NUM - 1 + REC_LEN) % REC_LEN;
     FOUND_NODE = ithNode(FOUND_LIST, REC_NUM + 1);
 }

@@ -8,12 +8,12 @@
 #include "file.h"
 #include "cursor.h"
 
-static Ustring GetUstrFromClipBoard();
-static bool AddUstrToClipBoard(Ustring str);
+static string GetStrFromClipBoard();
+static bool AddStrToClipBoard(string str);
 
 // TODO: focus
 
-void InputUstring(Ustring newstr)
+void InputString(string newstr)
 {
   CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
@@ -24,7 +24,7 @@ void InputUstring(Ustring newstr)
   AddStrToText(newstr, ptrf);
 }
 
-void DeleteUstring()
+void DeleteString()
 {
   CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
@@ -40,24 +40,23 @@ void DeleteUstring()
   DeleteFromText(ptrf, ptrb);
 }
 
-void CopyUstring()
+void CopyTheString()
 {
   CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
 
-  Ustring origText = GetStrText();
+  string origText = GetStrText();
   int len = ptrb - ptrf;
-  Ustring text = (Ustring)malloc((len + 1) * sizeof(Unicode));
-  memcpy(text, origText + ptrf, len * sizeof(Unicode));
-  // wcscpy(text, len, origText + ptrf);
-  *(text + len) = L'\0';
-  AddUstrToClipBoard(text);
+  string text = (string)malloc((len + 1) * sizeof(char));
+  memcpy(text, origText + ptrf, len * sizeof(char));
+  *(text + len) = '\0';
+  AddStrToClipBoard(text);
   free(text);
 }
 
-void PasteUstring()
+void PasteTheString()
 {
   CURSOR_T *crst = GetCurrentCursor();
   int ptrf, ptrb;
@@ -66,14 +65,14 @@ void PasteUstring()
 
   DeleteFromText(ptrf, ptrb);
   ptrb = ptrf;
-  string newtext = GetUstrFromClipBoard();
+  string newtext = GetStrFromClipBoard();
   AddStrToText(newtext, ptrf);
   free(newtext);
 }
 
-static Ustring GetUstrFromClipBoard()
+static string GetStrFromClipBoard()
 {
-  Ustring clipboardbuf;
+  string clipboardbuf;
   int t = 5;
   bool flag = FALSE;
   do
@@ -98,14 +97,16 @@ static Ustring GetUstrFromClipBoard()
   {
     return "";
   }
-  Ustring pmem;
-  clipboardbuf = Whatever2Ustring(GlobalLock(hmem));
+  string pmem;
+  pmem = (string)GlobalLock(hmem);
+  clipboardbuf = (string)malloc((strlen(pmem)+1)*sizeof(char));
+  strcpy(clipboardbuf,pmem);
   GlobalUnlock(hmem);
 
   return clipboardbuf;
 }
 
-static bool AddUstrToClipBoard(Ustring str)
+static bool AddStrToClipBoard(string str)
 {
   int t = 5;
   bool flag = FALSE;
@@ -121,14 +122,14 @@ static bool AddUstrToClipBoard(Ustring str)
     return FALSE;
   }
 
-  HGLOBAL hmem = GlobalAlloc(GHND, (wcslen(str) + 1) * sizeof(Unicode));
+  HGLOBAL hmem = GlobalAlloc(GHND, (strlen(str) + 1) * sizeof(char));
   if (hmem == NULL)
   {
     Error("clipboard: failed to alloc mem");
     return FALSE;
   }
-  Ustring pmem = (Ustring)GlobalLock(hmem);
-  wcscpy_s(pmem, wcslen(str) + 1, str);
+  string pmem = (string)GlobalLock(hmem);
+  strcpy(pmem, str);
 
   EmptyClipboard();
   SetClipboardData(CF_TEXT, hmem);

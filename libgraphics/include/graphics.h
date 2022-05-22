@@ -67,6 +67,7 @@ void InitConsole(void);
  */
 
 void MovePen(double x, double y);
+void PenMove(double dx, double dy);
 
 /*
  * Function: DrawLine

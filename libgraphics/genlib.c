@@ -12,12 +12,12 @@
 #include <Windows.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "exception.h"
 #include "gcalloc.h"
-
 
 /*
  * Constants:
@@ -29,50 +29,28 @@
 #define ErrorExitStatus 1
 #define MaxErrorMessage 500
 
-
 ////////////////////
 
-Ustring Whatever2Ustring(void *str){
-  Ustring cstr1=(Ustring)str;
-  string cstr2=(string)str;
-  size_t len1,len2;
-  len1=wcslen(str);
-  len2=strlen(str);
-  if (len1==len2){
-    Ustring ustr=(Ustring)malloc((len1+1)*sizeof(Unicode));
-    wcscpy(ustr,cstr1);
-    return ustr;
-  } else{
-    return String2Ustring(cstr2);
-  }
-}
+#define ASCII_CHECK 0x80
 
-Ustring String2Ustring(string str){
-  int size=MultiByteToWideChar(65001,0,str,-1,NULL,0);
-  if (size<=0){
-    Error("failed to convert str to ustr");
-    return L"";
+size_t OneCharLength(char chr)
+{
+  if (chr & ASCII_CHECK == 0)
+  {
+    return (size_t)1;
   }
-  Ustring ustr=(Ustring)malloc(size*sizeof(Unicode));
-  MultiByteToWideChar(65001,0,str,-1,ustr,size);
-  return ustr;
+  size_t nByte = 0;
+  do
+  {
+    nByte++;
+    chr <<= 1;
+  } while (chr & ASCII_CHECK != 0);
+  if (nByte < 1 || nByte > 6)
+    return -1;
+  return nByte;
 }
-
-string Ustring2string(Ustring ustr){
-  int size=WideCharToMultiByte(65001,0,ustr,-1,NULL,0,NULL,NULL);
-  if (size<=0){
-    Error("failed to convert ustr to str");
-    return "";
-  }
-  string str=(string)malloc(size*sizeof(char));
-  WideCharToMultiByte(65001,0,ustr,-1,str,size,NULL,NULL);
-  return ustr;
-}
-
 
 ////////////////////
-
-
 
 /* Section 1 -- Define new "primitive" types */
 
@@ -114,28 +92,39 @@ _GCControlBlock _acb = NULL;
 
 /* Memory allocation implementation */
 
-void *GetBlock(size_t nbytes) {
+void *GetBlock(size_t nbytes)
+{
   void *result;
 
-  if (_acb == NULL) {
+  if (_acb == NULL)
+  {
     result = malloc(nbytes);
-  } else {
+  }
+  else
+  {
     result = _acb->allocMethod(nbytes);
   }
-  if (result == NULL) Error("No memory available");
+  if (result == NULL)
+    Error("No memory available");
   return (result);
 }
 
-void FreeBlock(void *ptr) {
-  if (_acb == NULL) {
+void FreeBlock(void *ptr)
+{
+  if (_acb == NULL)
+  {
     free(ptr);
-  } else {
+  }
+  else
+  {
     _acb->freeMethod(ptr);
   }
 }
 
-void ProtectBlock(void *ptr, size_t nbytes) {
-  if (_acb != NULL) _acb->protectMethod(ptr, nbytes);
+void ProtectBlock(void *ptr, size_t nbytes)
+{
+  if (_acb != NULL)
+    _acb->protectMethod(ptr, nbytes);
 }
 
 /* Section 3 -- Basic error handling */
@@ -155,7 +144,8 @@ void ProtectBlock(void *ptr, size_t nbytes) {
  * certainly corrupts the stack.
  */
 
-void Error(string msg, ...) {
+void Error(string msg, ...)
+{
   va_list args;
   char errbuf[MaxErrorMessage + 1];
   string errmsg;
@@ -165,23 +155,33 @@ void Error(string msg, ...) {
   vsprintf(errbuf, msg, args);
   va_end(args);
   errlen = strlen(errbuf);
-  if (errlen > MaxErrorMessage) {
+  if (errlen > MaxErrorMessage)
+  {
     fprintf(stderr, "Error: Error Message too long\n");
     exit(ErrorExitStatus);
   }
-  if (_acb == NULL) {
+  if (_acb == NULL)
+  {
     errmsg = malloc(errlen + 1);
-  } else {
+  }
+  else
+  {
     errmsg = _acb->allocMethod(errlen + 1);
   }
-  if (errmsg == NULL) {
+  if (errmsg == NULL)
+  {
     errmsg = "No memory available";
-  } else {
+  }
+  else
+  {
     strcpy(errmsg, errbuf);
   }
-  if (HandlerExists(&ErrorException)) {
+  if (HandlerExists(&ErrorException))
+  {
     RaiseTheException(&ErrorException, "ErrorException", errmsg);
-  } else {
+  }
+  else
+  {
     fprintf(stderr, "Error: %s\n", errmsg);
     exit(ErrorExitStatus);
   }

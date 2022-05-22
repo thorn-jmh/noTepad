@@ -52,6 +52,11 @@ linkedlistADT NewLinkedList(void);
  */
 
 int LinkedListLen(linkedlistADT head);
+
+linkedlistADT DeleteCurrentNodeWithOutFree(linkedlistADT head, linkedlistADT currentnode);
+
+linkedlistADT CopyLinkedList(linkedlistADT head);
+
 void DeleteCurrentNode(linkedlistADT head, linkedlistADT currentnode);
 
 void FreeLinkedList(linkedlistADT linkedlist);
@@ -87,7 +92,7 @@ linkedlistADT InsertNode(linkedlistADT linkedlist, linkedlistADT nodeptr, void *
  */
 
 void DeleteNode(linkedlistADT linkedlist, void *obj,
-                         bool (*equalfunptr)(void *obj1, void *obj2));
+                bool (*equalfunptr)(void *obj1, void *obj2));
 
 /*
  * Function: TraverseList
@@ -132,7 +137,8 @@ void *NodeObj(linkedlistADT head, linkedlistADT nodeptr);
  * This type provides the concrete counterpart to the linkedlistADT.
  */
 
-struct linkedlistCDT {
+struct linkedlistCDT
+{
     void *dataptr;
     struct linkedlistCDT *next;
 };

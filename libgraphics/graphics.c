@@ -46,22 +46,22 @@
  * DefaultFont     -- Font that serves as the "Default" font
  */
 
-#define DesiredWidth      11.0
-#define DesiredHeight     7.0
-#define DefaultSize       11
-#define MaxTitle          2048
-#define MaxFontName       50
-#define MaxFonts          100
-#define LeftMargin        100
-#define RightMargin       100
-#define TopMargin          10
-#define BottomMargin      30
-#define WindowSep          5
-#define ConsoleHeight    220
-#define MinConsoleScale    0.8
-#define PStartSize        50
-#define MaxColors        256
-#define MinColors         16
+#define DesiredWidth 11.0
+#define DesiredHeight 7.0
+#define DefaultSize 11
+#define MaxTitle 2048
+#define MaxFontName 50
+#define MaxFonts 100
+#define LeftMargin 100
+#define RightMargin 100
+#define TopMargin 10
+#define BottomMargin 30
+#define WindowSep 5
+#define ConsoleHeight 220
+#define MinConsoleScale 0.8
+#define PStartSize 50
+#define MaxColors 256
+#define MinColors 16
 
 #define GWClassName "Graphics Window"
 #define DefaultFont "System"
@@ -76,8 +76,8 @@
  */
 
 #define LargeInt 16000
-#define Epsilon  0.00000000001
-#define Pi       3.1415926535
+#define Epsilon 0.00000000001
+#define Pi 3.1415926535
 
 #define AnyButton (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON)
 
@@ -92,7 +92,8 @@ CharEventCallback g_char = NULL;
  * This structure holds the variables that make up the graphics state.
  */
 
-typedef struct graphicsStateT {
+typedef struct graphicsStateT
+{
     double cx, cy;
     string font;
     int size;
@@ -100,7 +101,7 @@ typedef struct graphicsStateT {
     bool erase;
     int color;
     struct graphicsStateT *link;
-} *graphicsStateT;
+} * graphicsStateT;
 
 /*
  * Type: fontEntryT
@@ -108,7 +109,8 @@ typedef struct graphicsStateT {
  * This structure holds the data for a font.
  */
 
-typedef struct {
+typedef struct
+{
     string name;
     int size, style;
     int points, ascent, descent, height;
@@ -130,8 +132,12 @@ typedef struct {
  * at that point.
  */
 
-typedef enum {
-    NoRegion, RegionStarting, RegionActive, PenHasMoved
+typedef enum
+{
+    NoRegion,
+    RegionStarting,
+    RegionActive,
+    PenHasMoved
 } regionStateT;
 
 /*
@@ -140,7 +146,8 @@ typedef enum {
  * This type is used for the entries in the color table.
  */
 
-typedef struct {
+typedef struct
+{
     string name;
     double red, green, blue;
 } colorEntryT;
@@ -156,11 +163,11 @@ typedef struct {
  */
 
 static short fillList[][8] = {
-    { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
-    { 0x77, 0xDD, 0x77, 0xDD, 0x77, 0xDD, 0x77, 0xDD },
-    { 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA },
-    { 0x88, 0x22, 0x88, 0x22, 0x88, 0x22, 0x88, 0x22 },
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+    {0x77, 0xDD, 0x77, 0xDD, 0x77, 0xDD, 0x77, 0xDD},
+    {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA},
+    {0x88, 0x22, 0x88, 0x22, 0x88, 0x22, 0x88, 0x22},
+    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 
 #define NFills (sizeof fillList / sizeof fillList[0])
@@ -311,7 +318,8 @@ static int Max(int x, int y);
 
 void InitGraphics(void)
 {
-    if (!initialized) {
+    if (!initialized)
+    {
         initialized = TRUE;
         ProtectVariable(stateStack);
         ProtectVariable(windowTitle);
@@ -321,29 +329,41 @@ void InitGraphics(void)
     }
     DisplayClear();
     InitGraphicsState();
-
 }
 
 void MovePen(double x, double y)
 {
     InitCheck();
-    if (regionState == RegionActive) regionState = PenHasMoved;
+    if (regionState == RegionActive)
+        regionState = PenHasMoved;
     cx = x;
     cy = y;
+}
+
+void PenMove(double dx, double dy)
+{
+    InitCheck();
+    if (regionState == RegionActive)
+        regionState = PenHasMoved;
+    
+    cx+=dx;
+    cy+=dy;
 }
 
 void DrawLine(double dx, double dy)
 {
     InitCheck();
-    switch (regionState) {
-      case NoRegion:
+    switch (regionState)
+    {
+    case NoRegion:
         DisplayLine(cx, cy, dx, dy);
         break;
-      case RegionStarting: case RegionActive:
+    case RegionStarting:
+    case RegionActive:
         DisplayLine(cx, cy, dx, dy);
         regionState = RegionActive;
         break;
-      case PenHasMoved:
+    case PenHasMoved:
         Error("Region segments must be contiguous");
     }
     cx += dx;
@@ -389,15 +409,17 @@ void DrawEllipticalArc(double rx, double ry,
     InitCheck();
     x = cx + rx * cos(Radians(start + 180));
     y = cy + ry * sin(Radians(start + 180));
-    switch (regionState) {
-      case NoRegion:
+    switch (regionState)
+    {
+    case NoRegion:
         DisplayArc(x, y, rx, ry, start, sweep);
         break;
-      case RegionStarting: case RegionActive:
+    case RegionStarting:
+    case RegionActive:
         RenderArc(x, y, rx, ry, start, sweep);
         regionState = RegionActive;
         break;
-      case PenHasMoved:
+    case PenHasMoved:
         Error("Region segments must be contiguous");
     }
     cx = x + rx * cos(Radians(start + sweep));
@@ -409,10 +431,12 @@ void DrawEllipticalArc(double rx, double ry,
 void StartFilledRegion(double grayScale)
 {
     InitCheck();
-    if (regionState != NoRegion) {
+    if (regionState != NoRegion)
+    {
         Error("Region is already in progress");
     }
-    if (grayScale < 0 || grayScale > 1) {
+    if (grayScale < 0 || grayScale > 1)
+    {
         Error("Gray scale for regions must be between 0 and 1");
     }
     regionState = RegionStarting;
@@ -423,7 +447,8 @@ void StartFilledRegion(double grayScale)
 void EndFilledRegion(void)
 {
     InitCheck();
-    if (regionState == NoRegion) {
+    if (regionState == NoRegion)
+    {
         Error("EndFilledRegion without StartFilledRegion");
     }
     DisplayPolygon();
@@ -432,17 +457,18 @@ void EndFilledRegion(void)
 
 /* Section 4 -- String functions */
 
-void DrawTextString(Ustring text)
+void DrawTextString(string text)
 {
     InitCheck();
-    if (regionState != NoRegion) {
+    if (regionState != NoRegion)
+    {
         Error("Text strings are illegal inside a region");
     }
     DisplayText(cx, cy, text);
     cx += TextStringWidth(text);
 }
 
-double TextStringWidth(Ustring text)
+double TextStringWidth(string text)
 {
     RECT r;
 
@@ -533,8 +559,10 @@ void WaitForMouseDown(void)
     MSG msg;
 
     UpdateDisplay();
-    while (!mouseButton) {
-        if (GetMessage(&msg, graphicsWindow, 0, 0) == 0) exit(0);
+    while (!mouseButton)
+    {
+        if (GetMessage(&msg, graphicsWindow, 0, 0) == 0)
+            exit(0);
         DispatchMessage(&msg);
     }
 }
@@ -544,8 +572,10 @@ void WaitForMouseUp(void)
     MSG msg;
 
     UpdateDisplay();
-    while (mouseButton) {
-        if (GetMessage(&msg, graphicsWindow, 0, 0) == 0) exit(0);
+    while (mouseButton)
+    {
+        if (GetMessage(&msg, graphicsWindow, 0, 0) == 0)
+            exit(0);
         DispatchMessage(&msg);
     }
 }
@@ -564,7 +594,8 @@ void SetPenColor(string color)
 
     InitCheck();
     cindex = FindColorName(color);
-    if (cindex == -1) Error("Undefined color: %s", color);
+    if (cindex == -1)
+        Error("Undefined color: %s", color);
     penColor = cindex;
 }
 
@@ -580,12 +611,15 @@ void DefineColor(string name,
     int cindex;
 
     InitCheck();
-    if (red < 0 || red > 1 || green < 0 || green > 1 || blue < 0 || blue > 1) {
+    if (red < 0 || red > 1 || green < 0 || green > 1 || blue < 0 || blue > 1)
+    {
         Error("DefineColor: All color intensities must be between 0 and 1");
     }
     cindex = FindColorName(name);
-    if (cindex == -1) {
-        if (nColors == MaxColors) Error("DefineColor: Too many colors");
+    if (cindex == -1)
+    {
+        if (nColors == MaxColors)
+            Error("DefineColor: Too many colors");
         cindex = nColors++;
     }
     colorTable[cindex].name = CopyString(name);
@@ -621,8 +655,9 @@ bool GetEraseMode(void)
 void SetWindowTitle(string title)
 {
     windowTitle = CopyString(title);
-    if (initialized) {
-        SetWindowText(graphicsWindow, windowTitle);
+    if (initialized)
+    {
+        SetWindowTextA(graphicsWindow, windowTitle);
     }
 }
 
@@ -643,8 +678,9 @@ void Pause(double seconds)
     double finish;
 
     UpdateDisplay();
-    finish = (double) clock() / CLK_TCK + seconds;
-    while (((double) clock() / CLK_TCK) < finish);
+    finish = (double)clock() / CLK_TCK + seconds;
+    while (((double)clock() / CLK_TCK) < finish)
+        ;
 }
 
 void ExitGraphics(void)
@@ -675,7 +711,8 @@ void RestoreGraphicsState(void)
     graphicsStateT sb;
 
     InitCheck();
-    if (stateStack == NULL) {
+    if (stateStack == NULL)
+    {
         Error("RestoreGraphicsState called before SaveGraphicsState");
     }
     sb = stateStack;
@@ -698,7 +735,7 @@ double GetFullScreenWidth(void)
 
     desktop = GetDesktopWindow();
     GetWindowRect(desktop, &bounds);
-    return ((double) RectWidth(&bounds) / GetXResolution());
+    return ((double)RectWidth(&bounds) / GetXResolution());
 }
 
 double GetFullScreenHeight(void)
@@ -708,12 +745,13 @@ double GetFullScreenHeight(void)
 
     desktop = GetDesktopWindow();
     GetWindowRect(desktop, &bounds);
-    return ((double) RectHeight(&bounds) / GetYResolution());
+    return ((double)RectHeight(&bounds) / GetYResolution());
 }
 
 void SetWindowSize(double width, double height)
 {
-    if (initialized) return;
+    if (initialized)
+        return;
     windowWidth = width;
     windowHeight = height;
 }
@@ -724,7 +762,8 @@ double GetXResolution(void)
     HDC dc;
     int xdpi;
 
-    if (initialized) return (xResolution);
+    if (initialized)
+        return (xResolution);
     desktop = GetDesktopWindow();
     dc = GetDC(desktop);
     xdpi = GetDeviceCaps(dc, LOGPIXELSX);
@@ -738,7 +777,8 @@ double GetYResolution(void)
     HDC dc;
     int ydpi;
 
-    if (initialized) return (yResolution);
+    if (initialized)
+        return (yResolution);
     desktop = GetDesktopWindow();
     dc = GetDC(desktop);
     ydpi = GetDeviceCaps(dc, LOGPIXELSY);
@@ -758,7 +798,8 @@ double GetYResolution(void)
 
 static void InitCheck(void)
 {
-    if (!initialized) Error("InitGraphics has not been called");
+    if (!initialized)
+        Error("InitGraphics has not been called");
 }
 
 /*
@@ -797,7 +838,6 @@ void repaint()
     UpdateWindow(graphicsWindow);
 }
 
-
 /*
  * Function: InitDisplay
  * Usage: InitDisplay();
@@ -828,7 +868,7 @@ static void InitDisplay(void)
     /*clrscr();*/
     system("cls");
     atexit(DisplayExit);
-/*    RegisterWindowClass();*/
+    /*    RegisterWindowClass();*/
     consoleWindow = FindConsoleWindow();
     initialized = FALSE;
     xResolution = GetXResolution();
@@ -839,12 +879,17 @@ static void InitDisplay(void)
     xSpace = screenWidth - InchesX(LeftMargin + RightMargin);
     ySpace = screenHeight - InchesX(TopMargin + BottomMargin) - InchesX(ConsoleHeight + WindowSep);
     xScale = yScale = 1.0;
-    if (windowWidth > xSpace) xScale = xSpace / windowWidth;
-    if (windowHeight > ySpace) yScale = ySpace / windowHeight;
+    if (windowWidth > xSpace)
+        xScale = xSpace / windowWidth;
+    if (windowHeight > ySpace)
+        yScale = ySpace / windowHeight;
     scaleFactor = (xScale < yScale) ? xScale : yScale;
-    if (scaleFactor > MinConsoleScale) {
+    if (scaleFactor > MinConsoleScale)
+    {
         cWidth = PixelsX(DesiredWidth * scaleFactor);
-    } else {
+    }
+    else
+    {
         cWidth = PixelsX(DesiredWidth * MinConsoleScale);
     }
     xResolution *= scaleFactor;
@@ -852,11 +897,11 @@ static void InitDisplay(void)
     SetRectFromSize(&graphicsRect, LeftMargin, TopMargin,
                     PixelsX(windowWidth), PixelsY(windowHeight));
     style = WS_OVERLAPPEDWINDOW;
-    
+
     g_keyboard = NULL;
     g_mouse = NULL;
     g_timer = NULL;
-    
+
     wndcls.cbClsExtra = 0;
     wndcls.cbWndExtra = 0;
     wndcls.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
@@ -867,23 +912,24 @@ static void InitDisplay(void)
     wndcls.lpszClassName = "Graphics Window";
     wndcls.lpszMenuName = NULL;
     wndcls.style = CS_HREDRAW | CS_VREDRAW;
-    
+
     RegisterClass(&wndcls);
-    
+
     graphicsWindow = CreateWindow(
-      GWClassName,
-      windowTitle, 
-      style,
-      graphicsRect.left, 
-      graphicsRect.top,
-      RectWidth(&graphicsRect), 
-      RectHeight(&graphicsRect),
-      /*consoleWindow*/ NULL, 
-      (HMENU) NULL, 
-      (HINSTANCE) NULL,
-      (LPSTR) NULL);
-      
-    if (graphicsWindow == NULL) {
+        GWClassName,
+        windowTitle,
+        style,
+        graphicsRect.left,
+        graphicsRect.top,
+        RectWidth(&graphicsRect),
+        RectHeight(&graphicsRect),
+        /*consoleWindow*/ NULL,
+        (HMENU)NULL,
+        (HINSTANCE)NULL,
+        (LPSTR)NULL);
+
+    if (graphicsWindow == NULL)
+    {
         printf("InitGraphics: CreateGraphicsWindow failed.\n");
     }
     GetClientRect(graphicsWindow, &bounds);
@@ -897,24 +943,26 @@ static void InitDisplay(void)
     GetClientRect(graphicsWindow, &bounds);
     pixelWidth = RectWidth(&bounds);
     pixelHeight = RectHeight(&bounds);
-    
+
     ShowWindow(graphicsWindow, SW_SHOWNORMAL);
-    
+
     UpdateWindow(graphicsWindow);
-    
+
     osdc = CreateCompatibleDC(gdc);
-    
-    if (osdc == NULL) {
+
+    if (osdc == NULL)
+    {
         Error("Internal error: Can't create offscreen device");
     }
     osBits = CreateCompatibleBitmap(gdc, pixelWidth, pixelHeight);
-    if (osBits == NULL) {
+    if (osBits == NULL)
+    {
         Error("Internal error: Can't create offscreen bitmap");
     }
-    (void) SelectObject(osdc, osBits);
-    
+    (void)SelectObject(osdc, osBits);
+
     top = TopMargin + WindowSep + PixelsY(windowHeight) + dy;
-    
+
     /*
     SetRectFromSize(&consoleRect, LeftMargin, top,
                     cWidth + dx, ConsoleHeight);
@@ -926,8 +974,6 @@ static void InitDisplay(void)
 
     InitDrawingTools();
 }
-
-
 
 /*
  * Function: InitDrawingTools
@@ -948,13 +994,15 @@ static void InitDrawingTools(void)
     previousColor = 0;
     drawColor = RGB(0, 0, 0);
     eraseColor = RGB(255, 255, 255);
-    drawPen = (HPEN) CreatePen(PS_SOLID, penSize, drawColor);
-    erasePen = (HPEN) CreatePen(PS_SOLID, penSize, eraseColor);
-    nullPen = (HPEN) GetStockObject(NULL_PEN);
-    if (drawPen == NULL || erasePen == NULL || nullPen == NULL) {
+    drawPen = (HPEN)CreatePen(PS_SOLID, penSize, drawColor);
+    erasePen = (HPEN)CreatePen(PS_SOLID, penSize, eraseColor);
+    nullPen = (HPEN)GetStockObject(NULL_PEN);
+    if (drawPen == NULL || erasePen == NULL || nullPen == NULL)
+    {
         Error("Internal error: Can't initialize pens");
     }
-    for (i = 0; i < NFills; i++) {
+    for (i = 0; i < NFills; i++)
+    {
         fillBitmaps[i] = CreateBitmap(8, 8, 1, 1, fillList[i]);
     }
     SelectObject(osdc, drawPen);
@@ -974,7 +1022,8 @@ static void DisplayExit(void)
 {
     int i;
 
-    if (pauseOnExit) (void) getchar();
+    if (pauseOnExit)
+        (void)getchar();
     DeleteDC(osdc);
     DeleteDC(gdc);
     DestroyWindow(consoleWindow);
@@ -982,10 +1031,12 @@ static void DisplayExit(void)
     DeleteObject(drawPen);
     DeleteObject(erasePen);
     DeleteObject(nullPen);
-    for (i = 0; i < nFonts; i++) {
+    for (i = 0; i < nFonts; i++)
+    {
         DeleteObject(fontTable[i].font);
     }
-    for (i = 0; i < NFills; i++) {
+    for (i = 0; i < NFills; i++)
+    {
         DeleteObject(fillBitmaps[i]);
     }
 }
@@ -1006,7 +1057,7 @@ static HWND FindConsoleWindow(void)
 {
     HWND result;
 
-    EnumWindows(EnumerateProc, (LPARAM) &result);
+    EnumWindows(EnumerateProc, (LPARAM)&result);
     return (result);
 }
 
@@ -1024,9 +1075,10 @@ static BOOL CALLBACK EnumerateProc(HWND window, LPARAM clientData)
     char title[MaxTitle];
     bool ok;
 
-    wptr = (HWND *) clientData;
-    ok = GetWindowText(window, title, MaxTitle-1);
-    if (ok && strcmp(title + strlen(title) - 4, ".EXE")==0) {
+    wptr = (HWND *)clientData;
+    ok = GetWindowText(window, title, MaxTitle - 1);
+    if (ok && strcmp(title + strlen(title) - 4, ".EXE") == 0)
+    {
         *wptr = window;
         return (0);
     }
@@ -1054,7 +1106,8 @@ static void RegisterWindowClass(void)
     wcApp.hbrBackground = GetStockObject(WHITE_BRUSH);
     wcApp.style = CS_HREDRAW | CS_VREDRAW;
     wcApp.cbClsExtra = wcApp.cbWndExtra = 0;
-    if (!RegisterClass(&wcApp)) {
+    if (!RegisterClass(&wcApp))
+    {
         Error("Internal error: RegisterClass failed\n");
     }
 }
@@ -1071,105 +1124,105 @@ static void RegisterWindowClass(void)
 static LONG FAR PASCAL GraphicsEventProc(HWND hwnd, UINT msg,
                                          WPARAM wParam, LPARAM lParam)
 {
-    switch(msg)
+    switch (msg)
     {
-        // ���¹���ʹ����double buffer, �ֶ�������
-        //         ���Բ���������Ϣ��������˸
-        //         ��л18��ʯ��ͬѧ���ṩ����������ˢ����˸����
-        case WM_ERASEBKGND: //24
-            return 0; 
+    // ���¹���ʹ����double buffer, �ֶ�������
+    //         ���Բ���������Ϣ��������˸
+    //         ��л18��ʯ��ͬѧ���ṩ����������ˢ����˸����
+    case WM_ERASEBKGND: //24
+        return 0;
 
-        case WM_PAINT: //15
-             DoUpdate();
-             return 0;
+    case WM_PAINT: //15
+        DoUpdate();
+        return 0;
 
-        case WM_CHAR://402
-            if (g_char != NULL)
-                g_char((char) wParam);
-            return 0;
+    case WM_CHAR: //402
+        if (g_char != NULL)
+            g_char((char)wParam);
+        return 0;
 
-        case WM_KEYDOWN: //400
-            if (g_keyboard != NULL)
-                g_keyboard((int) wParam,KEY_DOWN);
-            return 0;
-    
-        case WM_KEYUP: //401
-            if(g_keyboard != NULL)
-                g_keyboard((int) wParam,KEY_UP);
-            return 0;
-    
-        case WM_LBUTTONDOWN: //1001
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), LEFT_BUTTON, BUTTON_DOWN);
-            return 0;
-    
-        case WM_LBUTTONUP: //1002
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), LEFT_BUTTON, BUTTON_UP);
-            return 0;
-    
-        case WM_LBUTTONDBLCLK: //1003
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), LEFT_BUTTON, BUTTON_DOUBLECLICK);
-            return 0;
-    
-        case WM_MBUTTONDOWN: //1007
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), MIDDLE_BUTTON, BUTTON_DOWN);
-            return 0;
-    
-        case WM_MBUTTONUP: //1008
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), MIDDLE_BUTTON, BUTTON_UP);
-            return 0;
-    
-        case WM_MBUTTONDBLCLK: //1009
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), MIDDLE_BUTTON, BUTTON_DOUBLECLICK);
-            return 0;
-    
-        case WM_RBUTTONDOWN: //1004
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), RIGHT_BUTTON, BUTTON_DOWN);
-            return 0;
-    
-        case WM_RBUTTONUP: //1005
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), RIGHT_BUTTON, BUTTON_UP);
-            return 0;
-    
-        case WM_RBUTTONDBLCLK: //1006
-            if (g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), RIGHT_BUTTON, BUTTON_DOUBLECLICK);
-            return 0;
-    
-        case WM_MOUSEMOVE: //1000
-            if(g_mouse != NULL)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam), MOUSEMOVE, MOUSEMOVE);
-            return 0;
-    
-        case WM_MOUSEWHEEL: //1010
-            if(g_mouse == NULL)
-                return 0;
-            if(HIWORD(wParam) == 120)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam),MIDDLE_BUTTON,ROLL_UP);
-            else if(HIWORD(wParam)==65416)
-                g_mouse((int) LOWORD(lParam), (int) HIWORD(lParam),MIDDLE_BUTTON,ROLL_DOWN);
-            return 0;
-    
-        case WM_TIMER: //423
-            if (g_timer != NULL)
-                g_timer(wParam);
-            return 0;
-        case WM_DESTROY: //2
-            PostQuitMessage(0);
-            return 0;   
+    case WM_KEYDOWN: //400
+        if (g_keyboard != NULL)
+            g_keyboard((int)wParam, KEY_DOWN);
+        return 0;
 
-        default:
-            return DefWindowProc(hwnd, msg, wParam, lParam);
-    }                                     
+    case WM_KEYUP: //401
+        if (g_keyboard != NULL)
+            g_keyboard((int)wParam, KEY_UP);
+        return 0;
 
-/*
+    case WM_LBUTTONDOWN: //1001
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), LEFT_BUTTON, BUTTON_DOWN);
+        return 0;
+
+    case WM_LBUTTONUP: //1002
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), LEFT_BUTTON, BUTTON_UP);
+        return 0;
+
+    case WM_LBUTTONDBLCLK: //1003
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), LEFT_BUTTON, BUTTON_DOUBLECLICK);
+        return 0;
+
+    case WM_MBUTTONDOWN: //1007
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), MIDDLE_BUTTON, BUTTON_DOWN);
+        return 0;
+
+    case WM_MBUTTONUP: //1008
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), MIDDLE_BUTTON, BUTTON_UP);
+        return 0;
+
+    case WM_MBUTTONDBLCLK: //1009
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), MIDDLE_BUTTON, BUTTON_DOUBLECLICK);
+        return 0;
+
+    case WM_RBUTTONDOWN: //1004
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), RIGHT_BUTTON, BUTTON_DOWN);
+        return 0;
+
+    case WM_RBUTTONUP: //1005
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), RIGHT_BUTTON, BUTTON_UP);
+        return 0;
+
+    case WM_RBUTTONDBLCLK: //1006
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), RIGHT_BUTTON, BUTTON_DOUBLECLICK);
+        return 0;
+
+    case WM_MOUSEMOVE: //1000
+        if (g_mouse != NULL)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), MOUSEMOVE, MOUSEMOVE);
+        return 0;
+
+    case WM_MOUSEWHEEL: //1010
+        if (g_mouse == NULL)
+            return 0;
+        if (HIWORD(wParam) == 120)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), MIDDLE_BUTTON, ROLL_UP);
+        else if (HIWORD(wParam) == 65416)
+            g_mouse((int)LOWORD(lParam), (int)HIWORD(lParam), MIDDLE_BUTTON, ROLL_DOWN);
+        return 0;
+
+    case WM_TIMER: //423
+        if (g_timer != NULL)
+            g_timer(wParam);
+        return 0;
+    case WM_DESTROY: //2
+        PostQuitMessage(0);
+        return 0;
+
+    default:
+        return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+
+    /*
     if (msg == WM_PAINT) {
         DoUpdate();
         return (0L);
@@ -1204,7 +1257,8 @@ static void CheckEvents(void)
 {
     MSG msg;
 
-    while (PeekMessage(&msg, graphicsWindow, 0, 0, PM_REMOVE) != 0) {
+    while (PeekMessage(&msg, graphicsWindow, 0, 0, PM_REMOVE) != 0)
+    {
         DispatchMessage(&msg);
     }
 }
@@ -1253,17 +1307,21 @@ void DisplayClear(void)
 static void PrepareToDraw(void)
 {
     int red, green, blue;
-/*
+    /*
     HPEN oldPen;
 */
 
-    if (eraseMode) {
+    if (eraseMode)
+    {
         DeleteObject(erasePen);
-        erasePen = (HPEN) CreatePen(PS_SOLID, penSize, eraseColor);
-        (void) SelectObject(osdc, erasePen);
+        erasePen = (HPEN)CreatePen(PS_SOLID, penSize, eraseColor);
+        (void)SelectObject(osdc, erasePen);
         SetTextColor(osdc, eraseColor);
-    } else {
-        if (penColor != previousColor) {
+    }
+    else
+    {
+        if (penColor != previousColor)
+        {
             red = colorTable[penColor].red * 256 - Epsilon;
             green = colorTable[penColor].green * 256 - Epsilon;
             blue = colorTable[penColor].blue * 256 - Epsilon;
@@ -1271,9 +1329,9 @@ static void PrepareToDraw(void)
             previousColor = penColor;
         }
         DeleteObject(drawPen);
-        drawPen = (HPEN) CreatePen(PS_SOLID, penSize, drawColor);
-        (void) SelectObject(osdc, drawPen);
-        (void) SetTextColor(osdc, drawColor);
+        drawPen = (HPEN)CreatePen(PS_SOLID, penSize, drawColor);
+        (void)SelectObject(osdc, drawPen);
+        (void)SetTextColor(osdc, drawColor);
     }
 }
 
@@ -1296,12 +1354,15 @@ static void DisplayLine(double x, double y, double dx, double dy)
     y0 = ScaleY(y);
     x1 = ScaleX(x + dx);
     y1 = ScaleY(y + dy);
-    if (regionState == NoRegion) {
+    if (regionState == NoRegion)
+    {
         SetLineBB(&r, x, y, dx, dy);
         InvalidateRect(graphicsWindow, &r, TRUE);
         MoveToEx(osdc, x0, y0, NULL);
         LineTo(osdc, x1, y1);
-    } else {
+    }
+    else
+    {
         AddSegment(x0, y0, x1, y1);
     }
 }
@@ -1331,12 +1392,16 @@ static void DisplayArc(double xc, double yc, double rx, double ry,
     ymin = ScaleY(yc + ry);
     xmax = xmin + PixelsX(2 * rx);
     ymax = ymin + PixelsX(2 * ry);
-    if (sweep < 0) {
+    if (sweep < 0)
+    {
         sweep = -sweep;
     }
-    if (start < 0) {
+    if (start < 0)
+    {
         start = 360 - fmod(-start, 360);
-    } else {
+    }
+    else
+    {
         start = fmod(start, 360);
     }
     ix0 = ScaleX(xc + rx * cos(Radians(start)));
@@ -1363,13 +1428,17 @@ static void RenderArc(double x, double y, double rx, double ry,
     int ix0, iy0, ix1, iy1;
 
     PrepareToDraw();
-    if (sweep < 0) {
+    if (sweep < 0)
+    {
         start += sweep;
         sweep = -sweep;
     }
-    if (fabs(rx) > fabs(ry)) {
+    if (fabs(rx) > fabs(ry))
+    {
         maxd = fabs(rx);
-    } else {
+    }
+    else
+    {
         maxd = fabs(rx);
     }
     dt = atan2(InchesY(1), maxd);
@@ -1377,8 +1446,10 @@ static void RenderArc(double x, double y, double rx, double ry,
     maxt = Radians(start + sweep);
     ix0 = ScaleX(x + rx * cos(mint));
     iy0 = ScaleY(y + ry * sin(mint));
-    for (t = mint + dt; t < maxt; t += dt) {
-        if (t > maxt - dt / 2) t = maxt;
+    for (t = mint + dt; t < maxt; t += dt)
+    {
+        if (t > maxt - dt / 2)
+            t = maxt;
         ix1 = ScaleX(x + rx * cos(t));
         iy1 = ScaleY(y + ry * sin(t));
         AddSegment(ix0, iy0, ix1, iy1);
@@ -1395,7 +1466,7 @@ static void RenderArc(double x, double y, double rx, double ry,
  * font and size.  The hard work is done in DisplayFont.
  */
 
-static void DisplayText(double x, double y, Ustring text)
+static void DisplayText(double x, double y, string text)
 {
     RECT r;
 
@@ -1403,7 +1474,7 @@ static void DisplayText(double x, double y, Ustring text)
     SetTextBB(&r, x, y, text);
     InvalidateRect(graphicsWindow, &r, TRUE);
     SetBkMode(osdc, TRANSPARENT);
-    TextOutW(osdc, ScaleX(x), ScaleY(y) - fontTable[currentFont] .ascent, text, wcslen(text));
+    TextOutA(osdc, ScaleX(x), ScaleY(y) - fontTable[currentFont].ascent, text, strlen(text));
     SetBkMode(osdc, OPAQUE);
 }
 
@@ -1430,25 +1501,32 @@ static void DisplayFont(string font, int size, int style)
     TEXTMETRIC metrics;
     int i, fontIndex;
 
-    for (i = 0; (fontBuffer[i] = tolower(font[i])) != '\0'; i++);
-    if (StringEqual("default", fontBuffer)) {
+    for (i = 0; (fontBuffer[i] = tolower(font[i])) != '\0'; i++)
+        ;
+    if (StringEqual("default", fontBuffer))
+    {
         fontName = DefaultFont;
-    } else {
+    }
+    else
+    {
         fontName = fontBuffer;
     }
     fontIndex = FindExistingFont(fontName, size, style);
-    if (fontIndex == -1) {
+    if (fontIndex == -1)
+    {
         newFont =
-          CreateFont(-size, 0, 0, 0,
-                     (style & Bold) ? FW_BOLD : FW_NORMAL,
-                     (style & Italic) != 0,
-                     0, 0, 0, 0, 0, 0, 0, fontName);
-        if (newFont != NULL) {
-            oldFont = (HFONT) SelectObject(osdc, newFont);
+            CreateFont(-size, 0, 0, 0,
+                       (style & Bold) ? FW_BOLD : FW_NORMAL,
+                       (style & Italic) != 0,
+                       0, 0, 0, 0, 0, 0, 0, fontName);
+        if (newFont != NULL)
+        {
+            oldFont = (HFONT)SelectObject(osdc, newFont);
             GetTextFace(osdc, MaxFontName, faceName);
-            if (PrefixMatch(fontName, faceName)
-                && GetTextMetrics(osdc, &metrics)) {
-                if (nFonts == MaxFonts) Error("Too many fonts loaded");
+            if (PrefixMatch(fontName, faceName) && GetTextMetrics(osdc, &metrics))
+            {
+                if (nFonts == MaxFonts)
+                    Error("Too many fonts loaded");
                 fontIndex = nFonts++;
                 fontTable[fontIndex].name = CopyString(fontName);
                 fontTable[fontIndex].size = size;
@@ -1457,19 +1535,23 @@ static void DisplayFont(string font, int size, int style)
                 fontTable[fontIndex].ascent = metrics.tmAscent;
                 fontTable[fontIndex].descent = metrics.tmDescent;
                 fontTable[fontIndex].height =
-                  metrics.tmHeight + metrics.tmExternalLeading;
+                    metrics.tmHeight + metrics.tmExternalLeading;
                 fontTable[fontIndex].points =
-                  metrics.tmHeight - metrics.tmInternalLeading;
+                    metrics.tmHeight - metrics.tmInternalLeading;
                 currentFont = fontIndex;
                 textFont = CopyString(font);
                 pointSize = fontTable[fontIndex].points;
                 textStyle = style;
-            } else {
-                (void) SelectObject(osdc, oldFont);
+            }
+            else
+            {
+                (void)SelectObject(osdc, oldFont);
             }
         }
-    } else {
-        (void) SelectObject(osdc, fontTable[fontIndex].font);
+    }
+    else
+    {
+        (void)SelectObject(osdc, fontTable[fontIndex].font);
         currentFont = fontIndex;
         textFont = CopyString(font);
         pointSize = fontTable[fontIndex].points;
@@ -1491,10 +1573,10 @@ static int FindExistingFont(string name, int size, int style)
 {
     int i;
 
-    for (i = 0; i < nFonts; i++) {
-        if (StringEqual(name, fontTable[i].name)
-            && size == fontTable[i].size
-            && style == fontTable[i].style) return (i);
+    for (i = 0; i < nFonts; i++)
+    {
+        if (StringEqual(name, fontTable[i].name) && size == fontTable[i].size && style == fontTable[i].style)
+            return (i);
     }
     return (-1);
 }
@@ -1540,44 +1622,61 @@ static void SetArcBB(RECT *rp, double xc, double yc,
     ymin = ScaleY(yc + ry);
     xmax = xmin + PixelsX(2 * rx);
     ymax = ymin + PixelsX(2 * ry);
-    if (sweep < 0) {
+    if (sweep < 0)
+    {
         start += sweep;
         sweep = -sweep;
     }
-    if (sweep >= 360) {
+    if (sweep >= 360)
+    {
         SetRect(rp, xmin, ymin, xmax, ymax);
         return;
     }
-    if (start < 0) {
+    if (start < 0)
+    {
         start = 360 - fmod(-start, 360);
-    } else {
+    }
+    else
+    {
         start = fmod(start, 360);
     }
     ix0 = ScaleX(xc + rx * cos(Radians(start)));
     iy0 = ScaleY(yc + ry * sin(Radians(start)));
     ix1 = ScaleX(xc + rx * cos(Radians(start + sweep)));
     iy1 = ScaleY(yc + ry * sin(Radians(start + sweep)));
-    if (start + sweep > 360) {
+    if (start + sweep > 360)
+    {
         xr = xmax;
-    } else {
+    }
+    else
+    {
         xr = Max(ix0, ix1);
     }
     start = fmod(start + 270, 360);
-    if (start + sweep > 360) {
+    if (start + sweep > 360)
+    {
         yt = ymin;
-    } else {
+    }
+    else
+    {
         yt = Min(iy0, iy1);
     }
     start = fmod(start + 270, 360);
-    if (start + sweep > 360) {
+    if (start + sweep > 360)
+    {
         xl = xmin;
-    } else {
+    }
+    else
+    {
         xl = Min(ix0, ix1);
     }
     start = fmod(start + 270, 360);
-    if (start + sweep > 360) {
+    if (start + sweep > 360)
+    {
         yb = ymax;
-    } else {
+    }
+    else
+    {
         yb = Max(iy0, iy1);
     }
     SetRect(rp, xl, yt, xr, yb);
@@ -1591,12 +1690,13 @@ static void SetArcBB(RECT *rp, double xc, double yc,
  * box of the text string using the current font and size.
  */
 
-static void SetTextBB(RECT *rp, double x, double y, Ustring text)
+static void SetTextBB(RECT *rp, double x, double y, string text)
 {
     SIZE textSize;
     int ix, iy;
 
-    if (!GetTextExtentPointW(osdc, text, wcslen(text), &textSize)) {
+    if (!GetTextExtentPoint32A(osdc, text, strlen(text), &textSize))
+    {
         Error("Internal error: Text size calculation failed");
     }
     ix = ScaleX(x);
@@ -1635,7 +1735,8 @@ static void StartPolygon(void)
 
 static void AddSegment(int x0, int y0, int x1, int y1)
 {
-    if (nPolygonPoints == 0) AddPolygonPoint(x0, y0);
+    if (nPolygonPoints == 0)
+        AddPolygonPoint(x0, y0);
     AddPolygonPoint(x1, y1);
 }
 
@@ -1647,22 +1748,27 @@ static void DisplayPolygon(void)
 
     PrepareToDraw();
     InvalidateRect(graphicsWindow, &polygonBounds, TRUE);
-    if (eraseMode) {
+    if (eraseMode)
+    {
         px = 0;
         fillPen = erasePen;
-    } else {
+    }
+    else
+    {
         px = regionDensity * (NFills - 1) + 0.5 - Epsilon;
         fillPen = drawPen;
     }
-    oldPen = (HPEN) SelectObject(osdc, fillPen);
+    oldPen = (HPEN)SelectObject(osdc, fillPen);
     brush = CreatePatternBrush(fillBitmaps[px]);
-    if (brush == NULL) {
+    if (brush == NULL)
+    {
         Error("Internal error: Can't load brush");
     }
-    oldBrush = (HBRUSH) SelectObject(osdc, brush);
+    oldBrush = (HBRUSH)SelectObject(osdc, brush);
     Polygon(osdc, polygonPoints, nPolygonPoints);
-    (void) SelectObject(osdc, oldPen);
-    if (oldBrush != NULL) (void) SelectObject(osdc, oldBrush);
+    (void)SelectObject(osdc, oldPen);
+    if (oldBrush != NULL)
+        (void)SelectObject(osdc, oldBrush);
     FreeBlock(polygonPoints);
     DeleteObject(brush);
 }
@@ -1681,10 +1787,12 @@ static void AddPolygonPoint(int x, int y)
     POINT *newPolygon;
     int i;
 
-    if (nPolygonPoints >= polygonSize) {
+    if (nPolygonPoints >= polygonSize)
+    {
         polygonSize *= 2;
         newPolygon = NewArray(polygonSize, POINT);
-        for (i = 0; i < nPolygonPoints; i++) {
+        for (i = 0; i < nPolygonPoints; i++)
+        {
             newPolygon[i] = polygonPoints[i];
         }
         FreeBlock(polygonPoints);
@@ -1737,8 +1845,10 @@ static int FindColorName(string name)
 {
     int i;
 
-    for (i = 0; i < nColors; i++) {
-        if (StringMatch(name, colorTable[i].name)) return (i);
+    for (i = 0; i < nColors; i++)
+    {
+        if (StringMatch(name, colorTable[i].name))
+            return (i);
     }
     return (-1);
 }
@@ -1764,8 +1874,10 @@ static bool StringMatch(string s1, string s2)
 
     cp1 = s1;
     cp2 = s2;
-    while (tolower(*cp1) == tolower(*cp2)) {
-        if (*cp1 == '\0') return (TRUE);
+    while (tolower(*cp1) == tolower(*cp2))
+    {
+        if (*cp1 == '\0')
+            return (TRUE);
         cp1++;
         cp2++;
     }
@@ -1782,8 +1894,10 @@ static bool StringMatch(string s1, string s2)
 
 static bool PrefixMatch(char *prefix, char *str)
 {
-    while (*prefix != '\0') {
-        if (tolower(*prefix++) != tolower(*str++)) return (FALSE);
+    while (*prefix != '\0')
+    {
+        if (tolower(*prefix++) != tolower(*str++))
+            return (FALSE);
     }
     return (TRUE);
 }
@@ -1840,7 +1954,7 @@ static double Radians(double degrees)
 
 static int Round(double x)
 {
-    return ((int) floor(x + 0.5));
+    return ((int)floor(x + 0.5));
 }
 
 /*
@@ -1855,12 +1969,12 @@ static int Round(double x)
 
 static double InchesX(int x)
 {
-    return ((double) x / xResolution);
+    return ((double)x / xResolution);
 }
 
 static double InchesY(int y)
 {
-    return ((double) y / yResolution);
+    return ((double)y / yResolution);
 }
 
 /*
@@ -1920,19 +2034,18 @@ static int Max(int x, int y)
     return ((x > y) ? x : y);
 }
 
-
-int WINAPI WinMain (HINSTANCE hThisInstance,
-                    HINSTANCE hPrevInstance,
-                    LPSTR lpszArgument,
-                    int nFunsterStil)
+int WINAPI WinMain(HINSTANCE hThisInstance,
+                   HINSTANCE hPrevInstance,
+                   LPSTR lpszArgument,
+                   int nFunsterStil)
 
 {
-    MSG messages;            /* Here messages to the application are saved */
-    
+    MSG messages; /* Here messages to the application are saved */
+
     Main();
 
     /* Run the message loop. It will run until GetMessage() returns 0 */
-    while (GetMessage (&messages, NULL, 0, 0))
+    while (GetMessage(&messages, NULL, 0, 0))
     {
         /* Translate virtual-key messages into character messages */
         TranslateMessage(&messages);
@@ -1940,7 +2053,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         DispatchMessage(&messages);
     }
     FreeConsole();
-    return messages.wParam;;
+    return messages.wParam;
+    ;
 }
 
 void registerKeyboardEvent(KeyboardEventCallback callback)
@@ -1983,7 +2097,7 @@ void cancelTimerEvent()
     g_timer = NULL;
 }
 
-void startTimer(int id,int timeinterval)
+void startTimer(int id, int timeinterval)
 {
     SetTimer(graphicsWindow, id, timeinterval, NULL);
 }
@@ -1995,10 +2109,10 @@ void cancelTimer(int id)
 
 double ScaleXInches(int x) /*x coordinate from pixels to inches*/
 {
-      return (double)x/GetXResolution();
+    return (double)x / GetXResolution();
 }
-       
-double ScaleYInches(int y)/*y coordinate from pixels to inches*/
+
+double ScaleYInches(int y) /*y coordinate from pixels to inches*/
 {
-      return GetWindowHeight()-(double)y/GetYResolution();
-} 	   
+    return GetWindowHeight() - (double)y / GetYResolution();
+}

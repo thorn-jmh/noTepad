@@ -51,9 +51,7 @@ typedef Unicode *Ustring;
 
 typedef char *string;
 
-Ustring Whatever2Ustring(void *str);
-Ustring String2Ustring(string str);
-string Ustring2string(Ustring str);
+size_t OneCharLength(char chr);
 
 
 /*

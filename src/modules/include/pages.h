@@ -9,18 +9,12 @@
 #include "genlib.h"
 #include "printer.h"
 
-typedef struct {
-  int Tline, //T是总行数
-  Fline, //F是窗口的第一行是第几行
-  Cline;//C是窗口可以容纳的行数
-} LINE_T;
-
 typedef struct{
     double X,Y;
 } X_Y;
 
 typedef struct{
-    X_Y LB,RT;//左上右下两个参数
+    X_Y LT,RB;//左上右下两个参数
 } AREA;
 
 typedef struct {
@@ -29,12 +23,6 @@ typedef struct {
 
 //静态全局变量接口部分
 PAGE_T *GetPageInfo(void);//获取页面布局变量指针
-
-LINE_T *GetCurrentLine(void);//获取行信息指针
-
-void SetPageInfo(PAGE_T PageInfo);//设置页面布局
-
-void SetLineInfo(LINE_T LineInfo);//设置行信息
 
 //滑条部分 注意：只有在Tline>0的才可正常绘制！！!
 void drawRect(double x, double y,double w,double h);

@@ -9,6 +9,7 @@
 #include "cursor.h"
 #include "genlib.h"
 #include "linkedlist.h"
+#include "finder.h"
 
 // for debug
 //#ifndef _cursor_h
@@ -39,16 +40,16 @@ struct _DLIST_HIS
   time_t time;
   size_t ptrs;
   DLIST_HIS nxt, frt;
-  Unicode content[0];
+  char content[0];
 };
 
 typedef struct
 {
   size_t TLength, UnderL;
-  string filename;
+  size_t filenameL;
   DLIST_HIS history_head;
   bool is_save;
-  Unicode OriginText[0];
+  char OriginText[0];
 } * TEXT_FILE;
 
 static TEXT_FILE CurrentFile;
@@ -59,28 +60,28 @@ static DLIST_HIS HIS_LIST, HIS_NODE;
 
 static time_t timestp;
 
-static void AddStrToTextWithOutHis(Ustring newstr, size_t ptr);
+static void AddStrToTextWithOutHis(string newstr, size_t ptr);
 static void DeleteFromTextWithOutHis(size_t ptr1, size_t ptr2);
-static void UpdateFileSys();
-static void readTextFromFileUTF8(stream file);
+static void UpdateFileSys(bool DelHis);
 static void readTextFromFile(stream file);
+static string updateFilePath(string filepath, bool DelHis);
 
 static DLIST_HIS NewHisList();
-static void AddNewHistory(HISTORY_T type, int ptrs, Ustring content);
+static void AddNewHistory(HISTORY_T type, int ptrs, string content);
 
 //// history doublelinked-list module ////
 static void freeHisList(DLIST_HIS headN);
 static void deleteUntil(DLIST_HIS headN, DLIST_HIS currentN);
 static DLIST_HIS addNewNode(DLIST_HIS headN, DLIST_HIS currentN,
-                            Ustring content);
+                            string content);
 static void deleteOneNode(DLIST_HIS headN, DLIST_HIS currentN);
 static DLIST_HIS nextNode(DLIST_HIS headN, DLIST_HIS currentN);
 static DLIST_HIS lastNode(DLIST_HIS headN, DLIST_HIS currentN);
 /////////////////////////////////////////
 
-Ustring GetStrText() { return CurrentFile->OriginText; }
+string GetStrText() { return CurrentFile->OriginText; }
 
-void AddStrToText(Ustring newstr, size_t ptr)
+void AddStrToText(string newstr, size_t ptr)
 {
   AddNewHistory(ADD_HIS, ptr, newstr);
   AddStrToTextWithOutHis(newstr, ptr);
@@ -88,17 +89,17 @@ void AddStrToText(Ustring newstr, size_t ptr)
 
 void DeleteFromText(size_t ptr1, size_t ptr2)
 {
-  Ustring tpstr = (Ustring)malloc((ptr2 - ptr1 + 1) * sizeof(Unicode));
-  Ustring cstr = CurrentFile->OriginText + ptr1;
-  memcpy(tpstr, cstr, (ptr2 - ptr1) * sizeof(Unicode));
-  // wcscpy_s(tpstr, ptr2 - ptr1, cstr);
-  *(tpstr + ptr2 - ptr1) = L'\0';
+  //从原文本copy下删除部分
+  string tpstr = (string)malloc((ptr2 - ptr1 + 1) * sizeof(char));
+  string cstr = CurrentFile->OriginText + ptr1;
+  memcpy(tpstr, cstr, (ptr2 - ptr1) * sizeof(char));
+  *(tpstr + ptr2 - ptr1) = '\0';
   AddNewHistory(DEL_HIS, ptr1, tpstr);
   free(tpstr);
   DeleteFromTextWithOutHis(ptr1, ptr2);
 }
 
-bool InitFileSys()
+void InitFileSys()
 {
   timestp = time(NULL);
   FILES_LIST = NewLinkedList();
@@ -110,72 +111,58 @@ int GetFilesNum() { return LinkedListLen(FILES_LIST); }
 void ChangeCurrentFile(int ith)
 {
   FILE_NODE = ithNode(FILES_LIST, ith);
-  UpdateFileSys();
+  UpdateFileSys(TRUE);
 }
 
-bool OpenTheFile(string filepath, bool utf8)
+bool OpenTheFile(string filepath)
 {
-  if (filepath == "")
+  if (filepath == NULL)
   {
     filepath = UNSAVED_NEW_FILE;
   }
 
   stream file = NULL;
-  if (utf8)
+  int err = fopen_s(&file, filepath, "r");
+  if (err == 2)
   {
-    fopen_s(&file, filepath, "r, ccs=utf-8");
+    fopen_s(&file, filepath, "w");
+    if (file != NULL)
+      fclose(file);
+    err = fopen_s(&file, filepath, "r");
   }
-  else
-  {
-    fopen_s(&file, filepath, "r");
-  }
-  if (file == NULL)
-  {
+  if (err != 0)
     return FALSE;
-  }
-
-  Ustring ts;
+  //读入
   CurrentFile = (TEXT_FILE)malloc(sizeof(*(TEXT_FILE)NULL) +
-                                  (INIT_FILEBUF_SIZE + 1) * sizeof(Unicode));
+                                  (INIT_FILEBUF_SIZE + 1) * sizeof(char) +
+                                  (strlen(filepath) + 1) * sizeof(char));
 
   FILE_NODE = InsertNode(FILES_LIST, NULL, CurrentFile);
   CurrentFile->TLength = 0, CurrentFile->UnderL = INIT_FILEBUF_SIZE;
-  int len = strlen(filepath) + 1;
-  string filename = (string)malloc(len * sizeof(char));
-  strcpy_s(filename, len, filepath);
-  CurrentFile->filename = filename;
   CurrentFile->history_head = NewHisList();
   CurrentFile->is_save = TRUE;
-  *(CurrentFile->OriginText) = L'\0';
-  UpdateFileSys();
+  *(CurrentFile->OriginText) = '\0';
+  string temp = updateFilePath(filepath, TRUE);
+  free(temp);
 
-  if (utf8)
-  {
-    readTextFromFileUTF8(file);
-  }
-  else
-  {
-    readTextFromFile(file);
-  }
-
+  readTextFromFile(file);
   fclose(file);
   return TRUE;
 }
 
+// Do not change filepath if pass NULL
 bool SaveTheFile(string filepath)
 {
-  if (filepath == "")
+  if (filepath == NULL)
   {
-    filepath = CurrentFile->filename;
+    filepath = CurrentFile->OriginText + CurrentFile->UnderL + 1;
   }
   stream file = NULL;
-  fopen_s(&file, filepath, "w, ccs=utf-8");
-  if (file == NULL)
-  {
+  int err = fopen_s(&file, filepath, "w");
+  if (err != 0)
     return FALSE;
-  }
 
-  if (fputws(CurrentFile->OriginText, file) < 0)
+  if (fputs(CurrentFile->OriginText, file) < 0)
   {
     return FALSE;
   }
@@ -192,12 +179,11 @@ bool CloseTheFile(bool force)
     return FALSE;
   }
 
-  free(CurrentFile->filename);
   freeHisList(HIS_LIST);
   HIS_LIST = NULL;
   DeleteCurrentNode(FILES_LIST, FILE_NODE);
   FILE_NODE = FILES_LIST->next;
-  UpdateFileSys();
+  UpdateFileSys(TRUE);
 
   return TRUE;
 }
@@ -218,7 +204,7 @@ void RedoHistory()
     else if (undoT == DEL_HIS)
     {
       DeleteFromTextWithOutHis(HIS_NODE->ptrs,
-                               HIS_NODE->ptrs + wcslen(HIS_NODE->content));
+                               HIS_NODE->ptrs + strlen(HIS_NODE->content));
     }
   } while (HIS_NODE->frt != HIS_LIST && HIS_NODE->frt->order == HIS_NODE->order);
 }
@@ -237,7 +223,7 @@ void UndoHistory()
     else if (undoT == DEL_HIS)
     {
       DeleteFromTextWithOutHis(HIS_NODE->ptrs,
-                               HIS_NODE->ptrs + wcslen(HIS_NODE->content));
+                               HIS_NODE->ptrs + strlen(HIS_NODE->content));
     }
     HIS_NODE = HIS_NODE->nxt;
   } while (HIS_NODE->nxt != NULL && HIS_NODE->order == HIS_NODE->frt->order);
@@ -247,26 +233,30 @@ void UndoHistory()
 
 /////////////////  R&W FILE  /////////////////
 
-static void AddStrToTextWithOutHis(Ustring newstr, size_t ptr)
+static void AddStrToTextWithOutHis(string newstr, size_t ptr)
 {
-  size_t len = wcslen(newstr);
-
+  CurrentFile->is_save = FALSE;
+  size_t len = strlen(newstr);
+  string filepath = updateFilePath(NULL, FALSE);
   while (CurrentFile->TLength + len > CurrentFile->UnderL)
   {
     CurrentFile = (TEXT_FILE)realloc(
         CurrentFile, sizeof(*(TEXT_FILE)NULL) +
-                         (CurrentFile->UnderL * 2 + 1) * sizeof(Unicode));
+                         (CurrentFile->UnderL * 2 + 1) * sizeof(char) +
+                         (CurrentFile->filenameL + 1) * sizeof(char));
     CurrentFile->UnderL *= 2;
   }
-  FILE_NODE->dataptr = (void *)CurrentFile;
+  updateFilePath(filepath, FALSE);
+  free(filepath);
 
-  Ustring tptr = CurrentFile->OriginText + ptr;
-  Ustring cstr =
-      (Ustring)malloc((CurrentFile->TLength - ptr + 1) * sizeof(Unicode));
-  wcscpy(cstr, tptr);
-  wcscpy(tptr, newstr);
+  // add new string
+  string tptr = CurrentFile->OriginText + ptr;
+  string cstr =
+      (string)malloc((CurrentFile->TLength - ptr + 1) * sizeof(char));
+  strcpy(cstr, tptr);
+  strcpy(tptr, newstr);
   tptr = tptr + len;
-  wcscpy(tptr, cstr);
+  strcpy(tptr, cstr);
   free(cstr);
   CurrentFile->TLength += len;
 
@@ -276,12 +266,13 @@ static void AddStrToTextWithOutHis(Ustring newstr, size_t ptr)
 
 static void DeleteFromTextWithOutHis(size_t ptr1, size_t ptr2)
 {
-  Ustring tptr = CurrentFile->OriginText + ptr2;
-  Ustring cstr =
-      (Ustring)malloc((CurrentFile->TLength - ptr2 + 1) * sizeof(Unicode));
-  wcscpy(cstr, tptr);
+  CurrentFile->is_save = FALSE;
+  string tptr = CurrentFile->OriginText + ptr2;
+  string cstr =
+      (string)malloc((CurrentFile->TLength - ptr2 + 1) * sizeof(char));
+  strcpy(cstr, tptr);
   tptr = CurrentFile->OriginText + ptr1;
-  wcscpy(tptr, cstr);
+  strcpy(tptr, cstr);
   free(cstr);
   CurrentFile->TLength -= ptr2 - ptr1;
 
@@ -289,26 +280,16 @@ static void DeleteFromTextWithOutHis(size_t ptr1, size_t ptr2)
   cursor->PTR_1 = cursor->PTR_2 = ptr1;
 }
 
-static void readTextFromFileUTF8(stream file)
-{
-  wint_t ch;
-  Ustring ts = (Ustring)malloc(2 * sizeof(Unicode));
-  *(ts + 1) = L'\0';
-  while ((ch = fgetwc(file)) != WEOF)
-  {
-    *ts = (Unicode)ch;
-    AddStrToTextWithOutHis(ts, CurrentFile->TLength);
-  }
-}
-
 static void readTextFromFile(stream file)
 {
-  int ch;
-  Ustring ts = (Ustring)malloc(2 * sizeof(Unicode));
-  *(ts + 1) = L'\0';
+  char ch;
+  string ts = (string)malloc(2 * sizeof(char));
+  *(ts + 1) = '\0';
+  CURSOR_T *crst = GetCurrentCursor();
+  crst->PTR_1 = crst->PTR_2 = 0;
   while ((ch = fgetc(file)) != EOF)
   {
-    *ts = (Unicode)ch;
+    *ts = ch;
     AddStrToTextWithOutHis(ts, CurrentFile->TLength);
   }
 }
@@ -317,18 +298,45 @@ static void readTextFromFile(stream file)
 
 //////////////// file system /////////////////
 
-static void UpdateFileSys()
+static void UpdateFileSys(bool DelHis)
 {
+  FreeFoundList();
   if (FILE_NODE == NULL)
   {
     HIS_LIST = HIS_NODE = NULL;
     CurrentFile = NULL;
   }
-
   CurrentFile = (TEXT_FILE)FILE_NODE->dataptr;
-  deleteUntil(HIS_LIST, HIS_NODE);
+  if (DelHis)
+    deleteUntil(HIS_LIST, HIS_NODE);
   HIS_LIST = CurrentFile->history_head;
   HIS_NODE = HIS_LIST->nxt;
+}
+
+//please receive the return value and free it
+//btw, update filesystem
+string updateFilePath(string filepath, bool DelHis)
+{
+
+  if (filepath != NULL)
+  {
+    size_t len = strlen(filepath);
+    if (len != CurrentFile->filenameL)
+    {
+      CurrentFile = (TEXT_FILE)realloc(
+          CurrentFile, sizeof(*(TEXT_FILE)NULL) +
+                           (CurrentFile->UnderL + 1) * sizeof(char) +
+                           (len + 1) * sizeof(char));
+      FILE_NODE->dataptr = (void *)CurrentFile;
+      UpdateFileSys(DelHis);
+    }
+    CurrentFile->filenameL = len;
+    memcpy(CurrentFile->OriginText + CurrentFile->UnderL + 1, filepath, len + 1);
+  }
+
+  string ret = (string)malloc(CurrentFile->filenameL + 1);
+  memcpy(ret, CurrentFile->OriginText + CurrentFile->UnderL + 1, CurrentFile->filenameL + 1);
+  return ret;
 }
 
 /////////// history /////////////
@@ -346,9 +354,9 @@ static DLIST_HIS NewHisList()
 }
 
 // return new head node, also new current node
-static void AddNewHistory(HISTORY_T type, int ptrs, Ustring content)
+static void AddNewHistory(HISTORY_T type, int ptrs, string content)
 {
-  if (wcslen(content) <= 0)
+  if (strlen(content) <= 0)
     return;
   HIS_NODE = addNewNode(HIS_LIST, HIS_NODE, content);
   HIS_NODE->ptrs = ptrs;
@@ -379,12 +387,12 @@ static void freeHisList(DLIST_HIS headN)
 
 // return new node
 static DLIST_HIS addNewNode(DLIST_HIS headN, DLIST_HIS currentN,
-                            Ustring content)
+                            string content)
 {
-  size_t len = wcslen(content);
+  size_t len = strlen(content);
   DLIST_HIS np =
-      (DLIST_HIS)malloc(sizeof(*(DLIST_HIS)NULL) + (len + 1) * sizeof(Unicode));
-  wcscpy(np->content, content);
+      (DLIST_HIS)malloc(sizeof(*(DLIST_HIS)NULL) + (len + 1) * sizeof(char));
+  strcpy(np->content, content);
 
   deleteUntil(headN, currentN);
   headN->nxt = np;
@@ -401,7 +409,7 @@ static DLIST_HIS addNewNode(DLIST_HIS headN, DLIST_HIS currentN,
   time_t ttt = time(&timestp);
   np->time = ttt;
   np->order = currentN->order + 1;
-  if (np->time - currentN->time <= MAX_TIME_INTERVAL)
+  if (np->time - currentN->time < MAX_TIME_INTERVAL)
   {
     np->order--;
   }

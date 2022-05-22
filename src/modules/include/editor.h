@@ -7,12 +7,12 @@
 
 #include"genlib.h"
 
-void InputUstring(Ustring newstr);
+void InputString(string newstr);
 
-void DeleteUstring();
+void DeleteString();
 
-void CopyUstring();
+void CopyTheString();
 
-void PasteUstring();
+void PasteTheString();
 
 #endif

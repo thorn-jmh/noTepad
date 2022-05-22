@@ -10,12 +10,11 @@
 #include "linkedlist.h"
 
 #ifndef New
-#define New(T) (T)malloc(sizeof(*(T)NULL))
+#define New(T) (T) malloc(sizeof(*(T)NULL))
 #define FreeBlock(T) free(T)
 #endif
 
 /* Exported entries */
-
 
 /*
  * Function: NewLinkedList
@@ -25,44 +24,54 @@
  * node only).
  */
 // TODO: new func
-int LinkedListLen(linkedlistADT head){
-	int ret=0;
-	while(head != NULL){
+int LinkedListLen(linkedlistADT head)
+{
+	int ret = 0;
+	while (head != NULL)
+	{
 		ret++;
-		head=head->next;
+		head = head->next;
 	}
-	return ret-1;
+	return ret - 1;
 }
 
-
-
-void DeleteCurrentNode(linkedlistADT head, linkedlistADT currentnode){
+linkedlistADT DeleteCurrentNodeWithOutFree(linkedlistADT head, linkedlistADT currentnode)
+{
 	linkedlistADT nodeptr, prenodeptr;
 
-	if (currentnode == NULL) return NULL;
+	if (currentnode == NULL)
+		return NULL;
 	prenodeptr = head;
-    nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if (currentnode == nodeptr) break;
-	    prenodeptr = nodeptr;
-        nodeptr = nodeptr->next;
+	nodeptr = head->next;
+	while (nodeptr != NULL)
+	{
+		if (currentnode == nodeptr)
+			break;
+		prenodeptr = nodeptr;
+		nodeptr = nodeptr->next;
 	}
-	if (nodeptr == NULL) return ;
-	
-	prenodeptr->next=nodeptr->next;
-	free(nodeptr->dataptr);
-	free(nodeptr);
-	return ;
+	if (nodeptr == NULL)
+		return;
+
+	prenodeptr->next = nodeptr->next;
+	return nodeptr;
+}
+
+void DeleteCurrentNode(linkedlistADT head, linkedlistADT currentnode)
+{
+	linkedlistADT todel = DeleteCurrentNodeWithOutFree(head, currentnode);
+	free(todel->dataptr);
+	free(todel);
 }
 
 linkedlistADT NewLinkedList(void)
 {
-    linkedlistADT head;
+	linkedlistADT head;
 
-    head = New(linkedlistADT);
-    head->dataptr = NULL;
+	head = New(linkedlistADT);
+	head->dataptr = NULL;
 	head->next = NULL;
-    return (head);
+	return (head);
 }
 
 /*
@@ -77,9 +86,11 @@ void FreeLinkedList(linkedlistADT head)
 	linkedlistADT nodeptr, nextnodeptr;
 
 	nodeptr = head;
-	while (nodeptr != NULL) {
-	    nextnodeptr = nodeptr->next;
-		if (nodeptr != head) FreeBlock(nodeptr->dataptr);
+	while (nodeptr != NULL)
+	{
+		nextnodeptr = nodeptr->next;
+		if (nodeptr != head)
+			FreeBlock(nodeptr->dataptr);
 		FreeBlock(nodeptr);
 		nodeptr = nextnodeptr;
 	}
@@ -94,15 +105,18 @@ void FreeLinkedList(linkedlistADT head)
  */
 
 linkedlistADT SearchNode(linkedlistADT head, void *obj,
-                         bool (*equalfunptr)(void *obj1, void *obj2))
+						 bool (*equalfunptr)(void *obj1, void *obj2))
 {
 	linkedlistADT nodeptr;
-	
-	if (obj == NULL) return NULL;
+
+	if (obj == NULL)
+		return NULL;
 	nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if ((*equalfunptr)(nodeptr->dataptr, obj)) return nodeptr;
-		nodeptr=nodeptr->next;
+	while (nodeptr != NULL)
+	{
+		if ((*equalfunptr)(nodeptr->dataptr, obj))
+			return nodeptr;
+		nodeptr = nodeptr->next;
 	}
 	return NULL;
 }
@@ -119,16 +133,31 @@ linkedlistADT InsertNode(linkedlistADT head, linkedlistADT nodeptr, void *obj)
 {
 	linkedlistADT ptr;
 
-	if (obj == NULL) return NULL;
-	if (nodeptr == NULL) { /*append the obj to the tail*/
+	if (obj == NULL)
+		return NULL;
+	if (nodeptr == NULL)
+	{ /*append the obj to the tail*/
 		nodeptr = head;
-		while (nodeptr->next != NULL) nodeptr = nodeptr->next;
+		while (nodeptr->next != NULL)
+			nodeptr = nodeptr->next;
 	}
 	ptr = New(linkedlistADT); /*New a node*/
-	ptr->dataptr = obj;  /*Set the data ptr of the node*/
+	ptr->dataptr = obj;		  /*Set the data ptr of the node*/
 	ptr->next = nodeptr->next;
 	nodeptr->next = ptr;
 	return ptr;
+}
+
+linkedlistADT CopyLinkedList(linkedlistADT head)
+{
+	if (head == NULL) return NULL;
+	linkedlistADT cphead = NewLinkedList();
+	while (head->next != NULL)
+	{
+		InsertNode(cphead, NULL, head->next->dataptr);
+		head = head->next;
+	}
+	return cphead;
 }
 
 /*
@@ -140,24 +169,28 @@ linkedlistADT InsertNode(linkedlistADT head, linkedlistADT nodeptr, void *obj)
  */
 
 void DeleteNode(linkedlistADT head, void *obj,
-                         bool (*equalfunptr)(void *obj1, void *obj2))
+				bool (*equalfunptr)(void *obj1, void *obj2))
 {
 	linkedlistADT nodeptr, prenodeptr;
 
-	if (obj == NULL) return NULL;
+	if (obj == NULL)
+		return NULL;
 	prenodeptr = head;
-    nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if ((*equalfunptr)(nodeptr->dataptr, obj)) break;
-	    prenodeptr = nodeptr;
-        nodeptr = nodeptr->next;
+	nodeptr = head->next;
+	while (nodeptr != NULL)
+	{
+		if ((*equalfunptr)(nodeptr->dataptr, obj))
+			break;
+		prenodeptr = nodeptr;
+		nodeptr = nodeptr->next;
 	}
-	if (nodeptr == NULL) return ;
-	
-	prenodeptr->next=nodeptr->next;
+	if (nodeptr == NULL)
+		return;
+
+	prenodeptr->next = nodeptr->next;
 	free(nodeptr->dataptr);
 	free(nodeptr);
-	return ;
+	return;
 }
 
 /*
@@ -172,9 +205,11 @@ void TraverseLinkedList(linkedlistADT head, void (*traversefunptr)(void *obj))
 {
 	linkedlistADT nodeptr;
 
-	if (traversefunptr == NULL) return;
+	if (traversefunptr == NULL)
+		return;
 	nodeptr = head->next;
-	while (nodeptr != NULL) {
+	while (nodeptr != NULL)
+	{
 		(*traversefunptr)(nodeptr->dataptr);
 		nodeptr = nodeptr->next;
 	}
@@ -193,8 +228,10 @@ void *ithNode(linkedlistADT head, int index)
 	int count = 0;
 
 	nodeptr = head->next;
-	while (nodeptr != NULL) {
-		if (++count == index) break;
+	while (nodeptr != NULL)
+	{
+		if (++count == index)
+			break;
 		nodeptr = nodeptr->next;
 	}
 	return nodeptr;
@@ -209,7 +246,8 @@ void *ithNode(linkedlistADT head, int index)
 
 linkedlistADT NextNode(linkedlistADT head, linkedlistADT nodeptr)
 {
-	if (nodeptr != NULL) return nodeptr->next;
+	if (nodeptr != NULL)
+		return nodeptr->next;
 	return NULL;
 }
 
@@ -222,6 +260,7 @@ linkedlistADT NextNode(linkedlistADT head, linkedlistADT nodeptr)
 
 void *NodeObj(linkedlistADT head, linkedlistADT nodeptr)
 {
-	if (nodeptr != NULL) return nodeptr->dataptr;
+	if (nodeptr != NULL)
+		return nodeptr->dataptr;
 	return NULL;
 }

@@ -17,13 +17,13 @@
 //CURSOR_T* GetCurrentCursor();
 //#endif
 
-bool InitFileSys();
+void InitFileSys();
 
 int GetFilesNum();
 
 void ChangeCurrentFile(int ith);
 
-bool OpenTheFile(string filepath, bool utf8);
+bool OpenTheFile(string filepath);
 
 bool SaveTheFile(string filepath);
 
@@ -32,9 +32,9 @@ bool CloseTheFile(bool force);
 
 
 
-Ustring GetStrText();
+string GetStrText();
 
-void AddStrToText(Ustring newstr,size_t ptr);
+void AddStrToText(string newstr,size_t ptr);
 
 void DeleteFromText(size_t ptr1,size_t ptr2);
 

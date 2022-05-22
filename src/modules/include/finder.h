@@ -3,9 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "linkedlist.h"
 #include "genlib.h"
 
-void FindSubStr(Ustring target);
+linkedlistADT GetCurrentHighlight();
+
+void FindSubStr(string target);
+
+void FreeFoundList();
 
 int TotalFound();
 

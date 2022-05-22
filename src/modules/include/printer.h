@@ -11,7 +11,12 @@
 #include"cursor.h"
 #include"pages.h"
 
-void PrintText(Ustring text, int offset);
+void CLearTextBar();
 
+void PrintTheText();
+
+// void PrintText(Ustring text, int offset);
+
+bool FocusLine(int line, bool Mode);
 
 #endif
