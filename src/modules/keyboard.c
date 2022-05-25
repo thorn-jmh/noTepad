@@ -118,7 +118,7 @@ void downkey(){
     PrintTheText(1);
 }
 
-void keyboardevnt(int key, int event){
+void keyboardevent(int key, int event){
     text_string=GetStrText();
     if(key==VK_LEFT&&event==KEY_DOWN) leftkey();
     if(key==VK_RIGHT&&event==KEY_DOWN) rightkey();
