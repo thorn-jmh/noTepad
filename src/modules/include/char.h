@@ -1,0 +1,1 @@
+void charevent(int key);                   //注册这个char_event即可
