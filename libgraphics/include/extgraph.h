@@ -75,6 +75,7 @@ void EndFilledRegion(void);
  * the next character position.  The string may not include the
  * newline character.
  */
+void DrawAngleTextString(string text,double h);
 
 void DrawTextString(string text);
 

@@ -1,8 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+
 #include "pages.h"
+
+#define Epsilon 0.001
 
 static PAGE_T thePage; //定义静态页面布局变量
 
-static double toph = 0.2;    //顶部高度
+static double toph = 0.24;   //顶部高度
 static double sliperw = 0.1; //滑块宽度
 static double margin = 0.1;  //页边留白
 static double notih = 2;
@@ -15,125 +21,102 @@ PAGE_T *GetPageInfo()
     return pp;
 };
 
-//滑条部分
-void drawRect(double x, double y, double w, double h)
-{ // xy是左下角
-    MovePen(x, y);
-    DrawLine(0, h);
-    DrawLine(w, 0);
-    DrawLine(0, -h);
-    DrawLine(-w, 0);
-}
-
-double SliperLength()
-{ //滑块的长度
-    LINE_T *theLine = GetCurrentLine();
-    double windowh = GetWindowHeight() - toph;
-    double sl = ((double)theLine->Cline / (double)theLine->Tline);
-    if (sl > 1.0)
-        sl = 1.0;
-    sl *= windowh;
-    return sl;
-};
-
-double GetSliperInch()
-{ //获取每一行对应在滑条的长度
-    LINE_T *theLine = GetCurrentLine();
-    double inch;
-    double windowh = GetWindowHeight() - toph;
-    double sliperl = SliperLength();
-    if (theLine->Cline >= theLine->Tline)
-        inch = 0;
-    else
-        inch = (windowh - sliperl) / (double)(theLine->Tline - 1);
-    return inch;
-};
-
-void DrawSliperBase()
-{ //先画滑条底
-
-    DefineColor("gray", 0.8, 0.8, 0.8);
-    SetPenColor("gray");
-    StartFilledRegion(0.9);
-    drawRect(thePage.SLIPER.LT.X,
-             thePage.SLIPER.LT.Y,
-             thePage.SLIPER.RB.X - thePage.SLIPER.LT.X,
-             thePage.SLIPER.RB.Y - thePage.SLIPER.LT.Y);
-    EndFilledRegion();
-}
-
-void DrawSliperBlock()
-{ //画滑块
-    LINE_T *theLine = GetCurrentLine();
-    double windowh = GetWindowHeight();
-    double windoww = GetWindowWidth();
-    double inch = GetSliperInch();
-    double blockl = SliperLength();
-
-    double blockTop = toph + (theLine->Fline - 1) * inch;
-    SetPenColor("black");
-    StartFilledRegion(0.9);
-    drawRect(windoww - sliperw, windowh - (blockTop + blockl), sliperw, blockl);
-    EndFilledRegion();
-}
-
-void PageSuitWindow()
+void UpdatePageInfo()
 {
     double windowh = GetWindowHeight();
     double windoww = GetWindowWidth();
+
+    thePage.PAGE.LT.X = 0;
+    thePage.PAGE.LT.Y = windowh;
+    thePage.PAGE.RB.X = windoww;
+    thePage.PAGE.RB.Y = 0;
 
     thePage.SLIPER.LT.X = windoww - sliperw;
-    thePage.SLIPER.LT.Y = 0;
+    thePage.SLIPER.LT.Y = windowh - toph;
     thePage.SLIPER.RB.X = windoww;
-    thePage.SLIPER.RB.Y = windowh - toph;
+    thePage.SLIPER.RB.Y = 0;
 
-    thePage.TOPBUTTON.LT.X = 0;
-    thePage.TOPBUTTON.LT.Y = windowh - toph;
-    thePage.TOPBUTTON.RB.X = windoww;
-    thePage.TOPBUTTON.RB.Y = windowh;
+    thePage.TOPBAR.LT.X = 0;
+    thePage.TOPBAR.LT.Y = windowh;
+    thePage.TOPBAR.RB.X = windoww;
+    thePage.TOPBAR.RB.Y = windowh - toph;
 
-    thePage.TEXT.LT.X = margin;
-    thePage.TEXT.LT.Y = 0;
+    thePage.TEXT.LT.X = margin + toph;
+    thePage.TEXT.LT.Y = windowh - toph;
     thePage.TEXT.RB.X = windoww - margin;
-    thePage.TEXT.RB.Y = windowh - toph;
+    thePage.TEXT.RB.Y = 0;
+
+    thePage.LEFTBAR.LT.X = 0;
+    thePage.LEFTBAR.LT.Y = thePage.TOPBAR.RB.Y - toph / 20;
+    thePage.LEFTBAR.RB.X = toph;
+    thePage.LEFTBAR.RB.Y = 0;
 }; //这个函数会获取当前的窗口大小，对文本区进行调整
 
-void Noti(double mx, double my)
-{ //会按照传入的鼠标画一个长方体框框
-    if (mx <= margin || mx >= thePage.TEXT.RB.X || my >= thePage.TEXT.RB.Y)
-        return;
-    DefineColor("gray", 0.8, 0.8, 0.8);
-    SetPenColor("gray");
-    int LorR, UporD;
-    double inch = GetNotiInch();
-    double windowh = GetWindowHeight();
-    double windoww = GetWindowWidth();
-    if (mx <= windoww / 2)
-        LorR = 1;
-    else
-        LorR = -1;
-    if (my <= windowh / 2)
-        UporD = 1;
-    else
-        UporD = -1;
-    drawRect(mx, my, LorR * notiw, UporD * notih);
-    int i;
-    for (i = 1; i <= notinum; i++)
-    {
-        MovePen(mx, my + i * UporD * inch);
-        DrawLine(notiw * LorR, 0);
-    }
-
-    thePage.NOTI.LT.X = mx < mx + LorR * notiw ? mx : mx + LorR * notiw;
-    thePage.NOTI.LT.Y = my < my + UporD * notih ? my : my + UporD * notih;
-    thePage.NOTI.RB.X = mx > mx + LorR * notiw ? mx : mx + LorR * notiw;
-    thePage.NOTI.RB.Y = my > my + UporD * notih ? my : my + UporD * notih;
-}
-
-double GetNotiInch()
+// from LT
+void SetNotiArea(double x, double y, double w, double h)
 {
-    return notih / notinum;
+    thePage.NOTI.LT.X = x;
+    thePage.NOTI.LT.Y = y;
+    thePage.NOTI.RB.X = x + w;
+    thePage.NOTI.RB.Y = y + h;
 }
+
+void ResetNotiArea()
+{
+    thePage.NOTI.LT.X = -1;
+    thePage.NOTI.LT.Y = -1;
+    thePage.NOTI.RB.X = -1;
+    thePage.NOTI.RB.Y = -1;
+}
+
+bool InNotiArea(double x, double y)
+{
+    if (thePage.NOTI.LT.X < 0)
+        return FALSE;
+    if (x >= thePage.NOTI.LT.X && x <= thePage.NOTI.RB.X && y <= thePage.NOTI.LT.Y && y >= thePage.NOTI.RB.Y)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+///////// OLD ////////////////
+
+//void Noti(double mx, double my)
+//{ //会按照传入的鼠标画一个长方体框框
+//    if (mx <= margin || mx >= thePage.TEXT.RB.X || my >= thePage.TEXT.RB.Y)
+//        return;
+//    DefineColor("gray", 0.8, 0.8, 0.8);
+//    SetPenColor("gray");
+//    int LorR, UporD;
+//    double inch = GetNotiInch();
+//    double windowh = GetWindowHeight();
+//    double windoww = GetWindowWidth();
+//    if (mx <= windoww / 2)
+//        LorR = 1;
+//    else
+//        LorR = -1;
+//    if (my <= windowh / 2)
+//        UporD = 1;
+//    else
+//        UporD = -1;
+//    drawRect(mx, my, LorR * notiw, UporD * notih);
+//    int i;
+//    for (i = 1; i <= notinum; i++)
+//    {
+//        MovePen(mx, my + i * UporD * inch);
+//        DrawLine(notiw * LorR, 0);
+//    }
+//
+//    thePage.NOTI.LT.X = mx < mx + LorR * notiw ? mx : mx + LorR * notiw;
+//    thePage.NOTI.LT.Y = my < my + UporD * notih ? my : my + UporD * notih;
+//    thePage.NOTI.RB.X = mx > mx + LorR * notiw ? mx : mx + LorR * notiw;
+//    thePage.NOTI.RB.Y = my > my + UporD * notih ? my : my + UporD * notih;
+//}
+//
+//double GetNotiInch()
+//{
+//    return notih / notinum;
+//}
 
 /*void testText(void)
 {

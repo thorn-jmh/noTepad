@@ -224,6 +224,7 @@ void TraverseLinkedList(linkedlistADT head, void (*traversefunptr)(void *obj))
 
 void *ithNode(linkedlistADT head, int index)
 {
+	if(index<=0)return NULL;
 	linkedlistADT nodeptr;
 	int count = 0;
 

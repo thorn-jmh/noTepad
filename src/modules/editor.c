@@ -6,16 +6,22 @@
 #include <stdlib.h>
 
 #include "file.h"
+#include "topbar.h"
 #include "cursor.h"
-
-static string GetStrFromClipBoard();
-static bool AddStrToClipBoard(string str);
+#include "clipboard.h"
 
 // TODO: focus
 
 void InputString(string newstr)
 {
   CURSOR_T *crst = GetCurrentCursor();
+  if(crst->focus==0) return;
+  else if(crst->focus==2){
+    InputBarText(newstr);
+    return;
+  }
+
+
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
@@ -27,14 +33,24 @@ void InputString(string newstr)
 void DeleteString()
 {
   CURSOR_T *crst = GetCurrentCursor();
-  int ptrf, ptrb;
+  if(crst->focus==0) return;
+  else if(crst->focus==2){
+    DeleteBarText();
+    return;
+  }
+
+
+  size_t ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
-  if (ptrf == ptrb)
+  string Otext = GetStrText();
+  if (ptrf == ptrb && ptrf != 0)
   {
+    while (OneCharLength(Otext + ptrf - 1) == -1)
+    {
+      ptrf--;
+    }
     ptrf--;
-    if (ptrf < 0)
-      ptrf++;
   }
 
   DeleteFromText(ptrf, ptrb);
@@ -43,6 +59,13 @@ void DeleteString()
 void CopyTheString()
 {
   CURSOR_T *crst = GetCurrentCursor();
+  if(crst->focus==0) return;
+  else if(crst->focus==2){
+    CopyBarText();
+    return;
+  }
+
+
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
@@ -59,6 +82,12 @@ void CopyTheString()
 void PasteTheString()
 {
   CURSOR_T *crst = GetCurrentCursor();
+  if(crst->focus==0) return;
+  else if(crst->focus==2){
+    PasteBarText();
+    return;
+  }
+
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
@@ -68,73 +97,4 @@ void PasteTheString()
   string newtext = GetStrFromClipBoard();
   AddStrToText(newtext, ptrf);
   free(newtext);
-}
-
-static string GetStrFromClipBoard()
-{
-  string clipboardbuf;
-  int t = 5;
-  bool flag = FALSE;
-  do
-  {
-    flag = OpenClipboard(NULL);
-    Sleep(50);
-  } while (--t && !flag);
-
-  if (!flag)
-  {
-    Error("failed to open clipboard");
-    return "";
-  }
-  if (!IsClipboardFormatAvailable(CF_TEXT))
-  {
-    Error("clipboard format invalid");
-    return "";
-  }
-
-  HGLOBAL hmem = GetClipboardData(CF_TEXT);
-  if (hmem == NULL)
-  {
-    return "";
-  }
-  string pmem;
-  pmem = (string)GlobalLock(hmem);
-  clipboardbuf = (string)malloc((strlen(pmem)+1)*sizeof(char));
-  strcpy(clipboardbuf,pmem);
-  GlobalUnlock(hmem);
-
-  return clipboardbuf;
-}
-
-static bool AddStrToClipBoard(string str)
-{
-  int t = 5;
-  bool flag = FALSE;
-  do
-  {
-    flag = OpenClipboard(NULL);
-    Sleep(50);
-  } while (--t && !flag);
-
-  if (!flag)
-  {
-    Error("failed to open clipboard");
-    return FALSE;
-  }
-
-  HGLOBAL hmem = GlobalAlloc(GHND, (strlen(str) + 1) * sizeof(char));
-  if (hmem == NULL)
-  {
-    Error("clipboard: failed to alloc mem");
-    return FALSE;
-  }
-  string pmem = (string)GlobalLock(hmem);
-  strcpy(pmem, str);
-
-  EmptyClipboard();
-  SetClipboardData(CF_TEXT, hmem);
-  CloseClipboard();
-  GlobalFree(hmem);
-
-  return TRUE;
 }

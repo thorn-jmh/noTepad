@@ -15,24 +15,24 @@
 
 #define Epsilon 0.00000000001
 
-string FONT_COLOR = "Black";        //字体颜色
-string BK_GROUND_COLOR = "White";   //背景颜色
-string HIGH_LIGHT_COLOR = "Orange"; //高亮颜色
-string SELECTED_COLOR = "Gray";     //选中颜色
-string FONT_NAME = "System";        //字体
-int POINT_SIZE = 13;                //字号
-int FONT_STYLE = 0;                 //字体样式
-double CURSOR_WID = 0.017;          //光标粗细
-string CURSOR_COLOR = "Black";      //光标颜色
-bool CURSOR_PRINT = TRUE;           //是否打印光标（和timer衔接）
+static string FONT_COLOR = "Black";        //字体颜色
+static string BK_GROUND_COLOR = "White";   //背景颜色
+static string HIGH_LIGHT_COLOR = "Orange"; //高亮颜色
+static string SELECTED_COLOR = "Gray";     //选中颜色
+static string FONT_NAME = "System";        //字体
+static int POINT_SIZE = 13;                //字号
+static int FONT_STYLE = 0;                 //字体样式
+static double CURSOR_WID = 0.017;          //光标粗细
+static string CURSOR_COLOR = "Black";      //光标颜色
+static bool CURSOR_PRINT = TRUE;           //是否打印光标（和timer衔接）
 
 //左右上下间隔
-double LeftMargin=0.1;
-double RightMargin=0.1;
-double TopMargin=0.1;
-double BottomMargin=0.1;
+static double LeftMargin = 0.1;
+static double RightMargin = 0.1;
+static double TopMargin = 0.1;
+static double BottomMargin = 0.1;
 
-linkedlistADT STACK; //背景色栈
+static linkedlistADT STACK; //背景色栈
 
 static void drawRectangle(double x, double y, double w, double h, int fillflag, string color);
 
@@ -89,12 +89,13 @@ void PrintTheText()
     PAGE_T *pgt = GetPageInfo();
     linkedlistADT HList = GetCurrentHighlight();
     HighlightStart();
+    setTextPen();
 
     double topY, leftX, rightX, bottomY;
-    topY = pgt->TEXT.LT.Y-TopMargin;
-    leftX = pgt->TEXT.LT.X+LeftMargin;
-    rightX = pgt->TEXT.RB.X-RightMargin;
-    bottomY = pgt->TEXT.RB.Y+BottomMargin;
+    topY = pgt->TEXT.LT.Y - TopMargin;
+    leftX = pgt->TEXT.LT.X + LeftMargin;
+    rightX = pgt->TEXT.RB.X - RightMargin;
+    bottomY = pgt->TEXT.RB.Y + BottomMargin;
 
     bool mLocated = FALSE;
     bool printFlag = FALSE;
@@ -111,12 +112,11 @@ void PrintTheText()
     dctF = GetFontDescent();
     htF = GetFontHeight();
 
-    setTextPen();
     MovePen(leftX, topY + dctF - htF * print_line);
     crst->X = crst->Y = -1;
     lnt->Cline = lnt->Tline = 0;
     lnt->Fline = (lnt->Fline > 0) ? lnt->Fline : 1;
-    while (*text != 0)
+    while (TRUE)
     {
         //从多字节中处理出单字符
         printFlag = FALSE;
@@ -143,7 +143,7 @@ void PrintTheText()
             if (printFlag)
             {
                 print_line++;
-                MovePen(leftX, topY + dctF - htF * print_line);
+                MovePen(leftX, topY + dctF - (htF + dctF / 6) * print_line);
             }
             if (!strcmp(chs, "\n"))
                 text += olen;
@@ -166,7 +166,7 @@ void PrintTheText()
         }
 
         //处理光标信息
-        if (cursor_ptr == text - Otext)
+        if (crst->focus == 1 && cursor_ptr == text - Otext)
         {
             crst->Line = nowline;
             if (printFlag)
@@ -176,7 +176,7 @@ void PrintTheText()
             }
             SetHighColor(SELECTED_COLOR);
         }
-        if (another_c == text - Otext)
+        if (crst->focus == 1 && another_c == text - Otext)
         {
             DelHightColor();
         }
@@ -191,10 +191,16 @@ void PrintTheText()
             }
             drawBK(one_width, CurrentHighColor());
             DrawTextString(chs);
-            if (CURSOR_PRINT && cursor_ptr == text - Otext && another_c == cursor_ptr)
-                printCursor();
+            if (crst->focus == 1)
+                if (CURSOR_PRINT && cursor_ptr == text - Otext && another_c == cursor_ptr)
+                    printCursor();
         }
 
+        free(chs);
+        if (*text == 0)
+        {
+            break;
+        }
         text += olen;
     }
 
@@ -206,7 +212,6 @@ void PrintTheText()
             printFlag = TRUE;
         print_line++;
     }
-
     FreeLinkedList(HList);
     HighlightEnd();
     lnt->Tline = nowline;
@@ -282,6 +287,7 @@ static void drawRectangle(double x, double y, double w, double h, int fillflag, 
 
 static void setTextPen()
 {
+    SetPenSize(0.001);
     SetPenColor(FONT_COLOR);
     SetPointSize(POINT_SIZE);
     SetFont(FONT_NAME);

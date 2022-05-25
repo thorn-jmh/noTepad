@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include"genlib.h"
+#include "genlib.h"
 
 //TODO: for debug
 //#ifndef _cursor_h
@@ -29,18 +29,15 @@ bool SaveTheFile(string filepath);
 
 bool CloseTheFile(bool force);
 
-
-
-
 string GetStrText();
 
-void AddStrToText(string newstr,size_t ptr);
+int CurrentFileI();
 
-void DeleteFromText(size_t ptr1,size_t ptr2);
+string GetFileName(int ith);
 
+void AddStrToText(string newstr, size_t ptr);
 
-
-
+void DeleteFromText(size_t ptr1, size_t ptr2);
 
 void RedoHistory();
 

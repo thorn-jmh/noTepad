@@ -345,9 +345,9 @@ void PenMove(double dx, double dy)
     InitCheck();
     if (regionState == RegionActive)
         regionState = PenHasMoved;
-    
-    cx+=dx;
-    cy+=dy;
+
+    cx += dx;
+    cy += dy;
 }
 
 void DrawLine(double dx, double dy)
@@ -456,6 +456,55 @@ void EndFilledRegion(void)
 }
 
 /* Section 4 -- String functions */
+
+static void SetAngleTextBB(RECT *rp, double x, double y, string text,double h)
+{
+    SIZE textSize;
+    int ix, iy, ih;
+
+    if (!GetTextExtentPoint32A(osdc, text, strlen(text), &textSize))
+    {
+        Error("Internal error: Text size calculation failed");
+    }
+    ix = ScaleX(x);
+    iy = ScaleY(y);
+    ih = ScaleY(h);
+    SetRect(rp, ix - fontTable[currentFont].descent, iy,
+            ix + textSize.cy - fontTable[currentFont].descent, iy + min(textSize.cx,ih));
+}
+
+static void DisplayAngleText(double x, double y, string text,double h)
+{
+    RECT r;
+
+    PrepareToDraw();
+    SetAngleTextBB(&r, x, y, text,h);
+    InvalidateRect(graphicsWindow, &r, TRUE);
+    SetBkMode(osdc, TRANSPARENT);
+    TextOutA(osdc, ScaleX(x) + fontTable[currentFont].ascent, ScaleY(y), text, strlen(text));
+    SetBkMode(osdc, OPAQUE);
+}
+
+void DrawAngleTextString(string text, double h)
+{
+    HFONT oldfont, newfont;
+    newfont = CreateFont(-pointSize, 0, -900, 0,
+                         (textStyle & Bold) ? FW_BOLD : FW_NORMAL,
+                         (textStyle & Italic) != 0,
+                         0, 0, 0, 0, 0, 0, 0, textFont);
+    if (newfont == NULL)
+        return;
+    oldfont = (HFONT)SelectObject(osdc, newfont);
+
+    InitCheck();
+    if (regionState != NoRegion)
+    {
+        Error("Text strings are illegal inside a region");
+    }
+    DisplayAngleText(cx, cy, text, h);
+
+    SelectObject(osdc, oldfont);
+}
 
 void DrawTextString(string text)
 {
@@ -1830,7 +1879,9 @@ static void InitColors(void)
     DefineColor("Blue", 0, 0, 1);
     DefineColor("Violet", .93, .5, .93);
     DefineColor("Magenta", 1, 0, 1);
-    DefineColor("Cyan", 0, 1, 1);
+    DefineColor("Cyan", 0, 0.8, 0.8);
+    DefineColor("Deep Cyan",0,0.5,0.5);
+    
 }
 
 /*

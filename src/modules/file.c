@@ -52,6 +52,8 @@ typedef struct
   char OriginText[0];
 } * TEXT_FILE;
 
+int FILES_NUM, FILE_I;
+
 static TEXT_FILE CurrentFile;
 
 static linkedlistADT FILES_LIST, FILE_NODE;
@@ -79,6 +81,60 @@ static DLIST_HIS nextNode(DLIST_HIS headN, DLIST_HIS currentN);
 static DLIST_HIS lastNode(DLIST_HIS headN, DLIST_HIS currentN);
 /////////////////////////////////////////
 
+void InitFileSys()
+{
+  timestp = time(NULL);
+  FILES_LIST = NewLinkedList();
+  FILE_NODE = NULL;
+  FILES_NUM = FILE_I = 0;
+}
+
+int CurrentFileI()
+{
+  return FILE_I;
+}
+
+int GetFilesNum()
+{
+  if (LinkedListLen(FILES_LIST) != FILES_NUM)
+    Error("file system error!!!");
+  return FILES_NUM;
+}
+
+void ChangeCurrentFile(int ith)
+{
+  FILE_I = ith;
+  FILE_NODE = ithNode(FILES_LIST, ith);
+  UpdateFileSys(TRUE);
+
+  CURSOR_T *crst=GetCurrentCursor();
+  size_t ptr=0;
+  string text=CurrentFile->OriginText;
+  while(*text != '\0'){
+    ptr++;
+    text++;
+  }
+  crst->PTR_1=crst->PTR_2=ptr;
+}
+
+string GetFileName(int ith)
+{
+  linkedlistADT tpNode = FILES_LIST;
+  while (ith--)
+  {
+    tpNode = tpNode->next;
+  }
+  TEXT_FILE tpFile = (TEXT_FILE)(tpNode->dataptr);
+  string ptr = tpFile->OriginText + tpFile->filenameL + tpFile->UnderL;
+  int tp = tpFile->filenameL;
+  while ((*ptr != '\0' || *ptr != '\\' || *ptr != '/' || *ptr != ':') && tp)
+  {
+    tp--;
+    ptr--;
+  }
+  return ++ptr;
+}
+
 string GetStrText() { return CurrentFile->OriginText; }
 
 void AddStrToText(string newstr, size_t ptr)
@@ -97,21 +153,6 @@ void DeleteFromText(size_t ptr1, size_t ptr2)
   AddNewHistory(DEL_HIS, ptr1, tpstr);
   free(tpstr);
   DeleteFromTextWithOutHis(ptr1, ptr2);
-}
-
-void InitFileSys()
-{
-  timestp = time(NULL);
-  FILES_LIST = NewLinkedList();
-  FILE_NODE = NULL;
-}
-
-int GetFilesNum() { return LinkedListLen(FILES_LIST); }
-
-void ChangeCurrentFile(int ith)
-{
-  FILE_NODE = ithNode(FILES_LIST, ith);
-  UpdateFileSys(TRUE);
 }
 
 bool OpenTheFile(string filepath)
@@ -147,6 +188,8 @@ bool OpenTheFile(string filepath)
 
   readTextFromFile(file);
   fclose(file);
+  FILES_NUM++;
+  FILE_I = FILES_NUM;
   return TRUE;
 }
 
@@ -182,7 +225,9 @@ bool CloseTheFile(bool force)
   freeHisList(HIS_LIST);
   HIS_LIST = NULL;
   DeleteCurrentNode(FILES_LIST, FILE_NODE);
-  FILE_NODE = FILES_LIST->next;
+  FILES_NUM--;
+  FILE_I = (FILE_I == 1 && FILES_NUM >= FILE_I) ? FILE_I : FILE_I - 1;
+  FILE_NODE = ithNode(FILES_LIST, FILE_I);
   UpdateFileSys(TRUE);
 
   return TRUE;
