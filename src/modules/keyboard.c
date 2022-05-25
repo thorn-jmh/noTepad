@@ -6,7 +6,8 @@
 #include"printer.h"
 #include<string.h>
 #include "editor.h"
-static string *text_string;
+#include "keyboard.h"
+static string text_string;
 static int isShitfDown=0;
 
 void swap(CURSOR_T *cursor){                                                //通过交换，保证cursor的ptr1小于ptr2
@@ -22,23 +23,25 @@ void leftkey(){
     CURSOR_T *cursor;
     cursor =GetCurrentCursor();
     swap(cursor);
-    size_t chwidth=OneCharLength(text_string[cursor->PTR_1]);
-
-    if(cursor->PTR_1==cursor->PTR_2){
-        if(cursor->PTR_1!=0){
-            if(OneCharLength(text_string[cursor->PTR_1-chwidth])){
-            cursor->PTR_1-=chwidth;
-            if(isShitfDown);
-            else cursor->PTR_2=cursor->PTR_1;
-            }
+    if(cursor->PTR_1==0) return;
+    if(isShitfDown){
+        while(OneCharLength(*(text_string+cursor->PTR_1-1))==-1){
+            cursor->PTR_1--;
         }
+        cursor->PTR_1--;
     }else{
-        if(OneCharLength(text_string[cursor->PTR_1-chwidth])){
-            cursor->PTR_1-=chwidth;
-            if(isShitfDown);
-            else cursor->PTR_2=cursor->PTR_1;
+        if(cursor->PTR_1==cursor->PTR_2){
+            while(OneCharLength(*(text_string+cursor->PTR_1-1))==-1){
+            cursor->PTR_1--;
+            }
+            cursor->PTR_1--;
+            cursor->PTR_2=cursor->PTR_1;
+        }else{
+            cursor->PTR_2=cursor->PTR_1;
         }
     }
+
+    
 
     PrintTheText(1);
 }
@@ -47,18 +50,22 @@ void rightkey(){
     CURSOR_T *cursor;
     cursor =GetCurrentCursor();
     swap(cursor);
-    size_t chwidth=OneCharLength(text_string[cursor->PTR_1]);
 
-    if(cursor->PTR_1==cursor->PTR_2){
-        if(cursor->PTR_2!=0){
-            cursor->PTR_2+=chwidth;
-            if(isShitfDown);
-            else cursor->PTR_1=cursor->PTR_2;
+    if(isShitfDown){
+        while(OneCharLength(*(text_string+cursor->PTR_2+1))==-1){
+            cursor->PTR_2++;
         }
+        cursor->PTR_2++;
     }else{
-        cursor->PTR_2+=chwidth;
-        if(isShitfDown);
-        else cursor->PTR_1=cursor->PTR_2;
+        if(cursor->PTR_1==cursor->PTR_2){
+            while(OneCharLength(*(text_string+cursor->PTR_2+1))==-1){
+            cursor->PTR_2++;
+            }
+            cursor->PTR_2++;
+            cursor->PTR_1=cursor->PTR_2;
+        }else{
+            cursor->PTR_1=cursor->PTR_2;
+        }
     }
 
     PrintTheText(1);
@@ -74,7 +81,7 @@ void upkey(){
     mouse=GetCurrentMouse();    
     double true_x=mouse->X,true_y=mouse->Y;                                 //记录下mouse的x和y
     size_t    true_ptr=mouse->PTR;
-    double height=GetFontHeight();                                          //有问题，height和mouse坐标以及cursor坐标的单位是否相同？
+    double height=GetFontHeight()+GetFontDescent()/6;                                          //有问题，height和mouse坐标以及cursor坐标的单位是否相同？
 
     PrintTheText(1);
     
@@ -113,7 +120,7 @@ void downkey(){
     mouse=GetCurrentMouse();    
     double true_x=mouse->X,true_y=mouse->Y;                                 //记录下mouse的x和y
     size_t    true_ptr=mouse->PTR;
-    double height=GetFontHeight();                                          //有问题，height和mouse坐标以及cursor坐标的单位是否相同？
+    double height=GetFontHeight()+GetFontDescent()/6;                                          //有问题，height和mouse坐标以及cursor坐标的单位是否相同？
 
     PrintTheText(1);
     if(cursor->Line<line->Fline){                                           //cursor超出输入的框了，在上面
@@ -129,9 +136,9 @@ void downkey(){
 
     PrintTheText(1);
     //if(mouse->PTR<=len_text&&mouse->PTR>=0){                              //如果ptr大于text的长度，或者小于0，就不变
-        cursor->PTR_1=mouse->PTR;
+        cursor->PTR_2=mouse->PTR;
         if(isShitfDown);
-        else cursor->PTR_2=mouse->PTR;
+        else cursor->PTR_1=mouse->PTR;
     //}
 
     mouse->X=true_x;                                                        //恢复鼠标的参数
@@ -143,7 +150,7 @@ void downkey(){
 
 void Return(){
     char str[8];
-    strcpy(str,"\n\0");
+    strcpy(str,"\n");
     InputString(str);
 }
 
@@ -154,7 +161,17 @@ void Space(){
 }
 
 void Backspace(){
-    DeleteString();
+    CURSOR_T *cursor;
+    cursor=GetCurrentCursor();
+    swap(cursor);
+    if(cursor->PTR_1==cursor->PTR_2){
+        if(cursor->PTR_1!=0){
+            DeleteString(1);
+        }
+    }else{
+        DeleteString(0);
+    }
+    
 }
 
 void keyboardevent(int key, int event){
