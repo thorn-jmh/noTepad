@@ -13,7 +13,7 @@
 
 void CLearTextBar();
 
-void PrintTheText();
+void PrintTheText(bool print);
 
 // void PrintText(Ustring text, int offset);
 

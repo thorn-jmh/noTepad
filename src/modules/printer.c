@@ -79,7 +79,7 @@ bool FocusLine(int line, bool Mode)
     return TRUE;
 }
 
-void PrintTheText()
+void PrintTheText(bool print)
 {
     string Otext = GetStrText();
     string text = Otext;
@@ -189,11 +189,14 @@ void PrintTheText()
                 mLocated = TRUE;
                 mst->PTR = text - Otext;
             }
-            drawBK(one_width, CurrentHighColor());
-            DrawTextString(chs);
-            if (crst->focus == 1)
-                if (CURSOR_PRINT && cursor_ptr == text - Otext && another_c == cursor_ptr)
-                    printCursor();
+            if (print)
+            {
+                drawBK(one_width, CurrentHighColor());
+                DrawTextString(chs);
+                if (crst->focus == 1)
+                    if (CURSOR_PRINT && cursor_ptr == text - Otext && another_c == cursor_ptr)
+                        printCursor();
+            }
         }
 
         free(chs);
@@ -212,6 +215,10 @@ void PrintTheText()
             printFlag = TRUE;
         print_line++;
     }
+
+    if(!mLocated)
+    mst->PTR=text-Otext;
+
     FreeLinkedList(HList);
     HighlightEnd();
     lnt->Tline = nowline;
@@ -320,16 +327,14 @@ static bool checkMouse()
 {
     MOUSE_T *mst = GetCurrentMouse();
     double mx, my, cx, cy;
-    mx = GetMouseX();
-    my = GetMouseY();
     cx = GetCurrentX();
     cy = GetCurrentY();
-    mst->X = mx, mst->Y = my;
+    mx = mst->X, my = mst->Y;
     double actF, dctF;
     actF = GetFontAscent();
     dctF = GetFontDescent();
 
-    if (mx < cx - Epsilon && my > cy - dctF)
+    if (mx < cx && my > cy - dctF)
         return FALSE;
     else if (my > cy + actF)
         return FALSE;
