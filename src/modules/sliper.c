@@ -109,10 +109,8 @@ int InSliperZoom(){
 
     PAGE_T *pgt = GetPageInfo();
     double windowsh = GetWindowHeight();
-    double windowsw = GetWindowWidth();
 
-
-    if(mx<=windowsw-pgt->SLIPER.LT.X&&mx>=windowsw-(pgt->SLIPER.RB.X-0.005)) return 1;
+    if(mx>=pgt->SLIPER.LT.X&&mx<=pgt->SLIPER.RB.X-0.005) return 1;
     else return 0;
 }
 
@@ -123,10 +121,9 @@ int InSliperblock(){
     double my = my = mp->Y;
     PAGE_T *pgt = GetPageInfo();
     double windowh = pgt->PAGE.LT.Y;
-    double windowsw = GetWindowWidth();
     
-    if(mx<=windowsw-pgt->SLIPER.LT.X&&
-    mx>=windowsw-(pgt->SLIPER.RB.X-0.005)&&
+    if(mx>=pgt->SLIPER.LT.X&&
+    mx<=pgt->SLIPER.RB.X-0.005&&
     my<=theblock.top &&
     my>=theblock.buttom) return 1;
     else return 0;
