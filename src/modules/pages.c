@@ -58,7 +58,7 @@ void SetNotiArea(double x, double y, double w, double h)
     thePage.NOTI.LT.X = x;
     thePage.NOTI.LT.Y = y;
     thePage.NOTI.RB.X = x + w;
-    thePage.NOTI.RB.Y = y + h;
+    thePage.NOTI.RB.Y = y - h;
 }
 
 void ResetNotiArea()

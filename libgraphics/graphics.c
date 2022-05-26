@@ -457,7 +457,7 @@ void EndFilledRegion(void)
 
 /* Section 4 -- String functions */
 
-static void SetAngleTextBB(RECT *rp, double x, double y, string text,double h)
+static void SetAngleTextBB(RECT *rp, double x, double y, string text, double h)
 {
     SIZE textSize;
     int ix, iy, ih;
@@ -470,15 +470,15 @@ static void SetAngleTextBB(RECT *rp, double x, double y, string text,double h)
     iy = ScaleY(y);
     ih = ScaleY(h);
     SetRect(rp, ix - fontTable[currentFont].descent, iy,
-            ix + textSize.cy - fontTable[currentFont].descent, iy + min(textSize.cx,ih));
+            ix + textSize.cy - fontTable[currentFont].descent, iy + min(textSize.cx, ih));
 }
 
-static void DisplayAngleText(double x, double y, string text,double h)
+static void DisplayAngleText(double x, double y, string text, double h)
 {
     RECT r;
 
     PrepareToDraw();
-    SetAngleTextBB(&r, x, y, text,h);
+    SetAngleTextBB(&r, x, y, text, h);
     InvalidateRect(graphicsWindow, &r, TRUE);
     SetBkMode(osdc, TRANSPARENT);
     TextOutA(osdc, ScaleX(x) + fontTable[currentFont].ascent, ScaleY(y), text, strlen(text));
@@ -1563,6 +1563,7 @@ static void DisplayFont(string font, int size, int style)
     fontIndex = FindExistingFont(fontName, size, style);
     if (fontIndex == -1)
     {
+
         newFont =
             CreateFont(-size, 0, 0, 0,
                        (style & Bold) ? FW_BOLD : FW_NORMAL,
@@ -1880,8 +1881,7 @@ static void InitColors(void)
     DefineColor("Violet", .93, .5, .93);
     DefineColor("Magenta", 1, 0, 1);
     DefineColor("Cyan", 0, 0.8, 0.8);
-    DefineColor("Deep Cyan",0,0.5,0.5);
-    
+    DefineColor("Deep Cyan", 0, 0.5, 0.5);
 }
 
 /*

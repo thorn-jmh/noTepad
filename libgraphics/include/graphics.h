@@ -167,10 +167,10 @@ typedef enum
 	KEY_UP
 } ACL_Keyboard_Event;
 
-typedef void (*KeyboardEventCallback) (int key,int event);
-typedef void (*CharEventCallback) (char c);
-typedef void (*MouseEventCallback) (int x, int y, int button, int event);
-typedef void (*TimerEventCallback) (int timerID);
+typedef void (*KeyboardEventCallback) (int,int);
+typedef void (*CharEventCallback) (char);
+typedef void (*MouseEventCallback) (int, int, int, int);
+typedef void (*TimerEventCallback) (int);
 
 void registerKeyboardEvent(KeyboardEventCallback callback);
 void registerCharEvent(CharEventCallback callback);

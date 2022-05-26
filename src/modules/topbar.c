@@ -8,6 +8,7 @@
 #include "graphics.h"
 #include "extgraph.h"
 #include "editor.h"
+#include "finder.h"
 #include "pages.h"
 #include "topbar.h"
 #include "bar.h"
@@ -97,7 +98,6 @@ static void drawTopBarText(double x, double y, double w, double h, BOTTON_T bott
     if (botton.name == NULL)
         return;
 
-    BAR_THEME theme_tp = GetBarTheme();
     double actF = GetFontAscent();
     double dctF = GetFontDescent();
     MovePen(x + actF / 2, y - h / 2 - actF / 2 + dctF / 2);
@@ -143,10 +143,10 @@ static void printBarText(double x, double y, double w, double h)
     double actF = GetFontAscent();
     double dctF = GetFontDescent();
     double htF = GetFontHeight();
-    MovePen(x + actF / 2, y - h / 2 - actF / 2 + dctF);
+    MovePen(x + actF / 2, y - h / 2 - actF / 2 + dctF / 2);
     double lenline = actF;
     string text = GetBarText();
-    string Btext=GetBarText();
+    string Btext = GetBarText();
     while (TRUE)
     {
         size_t olen = OneCharLength(*text);
@@ -213,6 +213,24 @@ static void drawTopBar(double x, double y, double w, double h, BOTTON_T botton)
     drawTopBarText(x, y, w, h, botton);
 }
 
+void drawSearchStatus(double x, double y, double w, double h)
+{
+    StartDrawTopBar();
+    BAR_THEME theme_tp = GetBarTheme();
+    drawRectangle(x, y, w, -h, TRUE, theme_tp.barbk);
+    SetPenSize(2);
+    drawRectangle(x, y, w, -h, FALSE, theme_tp.frame);
+
+    char tpstr[20];
+    sprintf(tpstr, "%d/%d", NowFound(), TotalFound());
+
+    double actF = GetFontAscent();
+    double dctF = GetFontDescent();
+    MovePen(x + actF / 2, y - h / 2 - actF / 2 + dctF / 2);
+    DrawTextString(tpstr);
+    MovePen(x, y);
+}
+
 static void drawTopBarFrame(double y, double w, double h)
 {
     BAR_THEME theme_tp = GetBarTheme();
@@ -239,12 +257,13 @@ void drawSearchBar()
     PAGE_T *pgt = GetPageInfo();
     double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
     double startY = pgt->TOPBAR.LT.Y - MARGIN / 2;
-    double startX = pgt->TOPBAR.RB.X - 6.5 * WPER;
+    double startX = pgt->TOPBAR.RB.X - 8 * WPER;
 
-    drawTextBar(startX, startY, 2 * WPER, heightT);
-    drawTopBar(startX + (7.0 / 3) * WPER, startY, WPER, heightT, LAST_BOTTON);
-    drawTopBar(startX + (11.0 / 3) * WPER, startY, WPER, heightT, NEXT_BOTTON);
-    drawTopBar(startX + (5) * WPER, startY, WPER, heightT, CANCEL_BOTTON);
+    drawSearchStatus(startX, startY, WPER, heightT);
+    drawTextBar(startX + (4.0 / 3) * WPER, startY, 2 * WPER, heightT);
+    drawTopBar(startX + (11.0 / 3) * WPER, startY, WPER, heightT, LAST_BOTTON);
+    drawTopBar(startX + 5 * WPER, startY, WPER, heightT, NEXT_BOTTON);
+    drawTopBar(startX + (19.0 / 3) * WPER, startY, WPER, heightT, CANCEL_BOTTON);
 }
 
 void drawSettingBar()
@@ -284,9 +303,21 @@ void drawFileExt()
     double startX = heightT;
     double Wper = WPER;
 
-    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * widthT, -5 * heightT, TRUE, theme_tp.textbk);
+    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * Wper, -5 * heightT, TRUE, theme_tp.textbk);
     drawTopBarList(startX, startY, 2 * Wper, heightT, 5,
                    NEW_BOTTON, OPEN_BOTTON, CLOSE_BOTTON, SAVE_BOTTON, SAVEAS_BOTTON);
+}
+
+void preDrawFileExt()
+{
+    PAGE_T *pgt = GetPageInfo();
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y - heightT;
+    double startX = heightT;
+    double Wper = WPER;
+
+    SetNotiArea(startX - MARGIN / 4, startY + MARGIN / 4, 2 * Wper + MARGIN / 4, 5 * heightT + MARGIN / 4);
 }
 
 void drawEditExt()
@@ -298,9 +329,21 @@ void drawEditExt()
     double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
     double startY = pgt->TOPBAR.LT.Y - heightT;
     double startX = heightT + Wper;
-    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * widthT, -6 * heightT, TRUE, theme_tp.textbk);
+    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * Wper, -6 * heightT, TRUE, theme_tp.textbk);
     drawTopBarList(startX, startY, 2 * Wper, heightT, 6,
                    SEARCH_BOTTON, CUT_BOTTON, COPY_BOTTON, PASTE_BOTTON, DELETE_BOTTON, SELECT_BOTTON);
+}
+
+void preDrawEditExt()
+{
+    PAGE_T *pgt = GetPageInfo();
+    double Wper = WPER;
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y - heightT;
+    double startX = heightT + Wper;
+
+    SetNotiArea(startX - MARGIN / 4, startY + MARGIN / 4, 2 * Wper + MARGIN / 4, 6 * heightT + MARGIN / 4);
 }
 
 void drawConfExt()
@@ -312,7 +355,20 @@ void drawConfExt()
     double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
     double startY = pgt->TOPBAR.LT.Y - heightT;
     double startX = heightT + 2 * Wper;
-    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * widthT, -3 * heightT, TRUE, theme_tp.textbk);
+    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * Wper, -3 * heightT, TRUE, theme_tp.textbk);
     drawTopBarList(startX, startY, 2 * Wper, heightT, 3,
                    FONT_BOTTON, SIZE_BOTTON, THEME_BOTTON);
 }
+
+void preDrawConfExt()
+{
+    PAGE_T *pgt = GetPageInfo();
+    double Wper = WPER;
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y - heightT;
+    double startX = heightT + 2 * Wper;
+
+    SetNotiArea(startX - MARGIN / 4, startY + MARGIN / 4, 2 * Wper + MARGIN / 4, 3 * heightT + MARGIN / 4);
+}
+

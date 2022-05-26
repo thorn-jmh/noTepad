@@ -84,15 +84,15 @@ void DeleteString(int direct)
   string Otext = GetStrText();
   if (direct == 1 && ptrf == ptrb && ptrf != 0)
   {
-    while (OneCharLength(Otext + ptrf - 1) == -1)
+    while (OneCharLength(*(Otext + ptrf - 1)) == -1)
     {
       ptrf--;
     }
     ptrf--;
   }
-  else if (direct == 2 && ptrf == ptrb && *(Otext + ptrb) != '/0')
+  else if (direct == 2 && ptrf == ptrb && *(Otext + ptrb) != '\0')
   {
-    while (OneCharLength(Otext + ptrb + 1) == -1)
+    while (OneCharLength(*(Otext + ptrb + 1)) == -1)
     {
       ptrb++;
     }
@@ -170,7 +170,7 @@ static void DeleteBarText(int direct)
     }
     else if (direct == 2 && ptrf == ptrb && *(BARTEXT + ptrb) != '/0')
     {
-        while (OneCharLength(BARTEXT + ptrb + 1) == -1)
+        while (OneCharLength(*(BARTEXT + ptrb + 1)) == -1)
         {
             ptrb++;
         }

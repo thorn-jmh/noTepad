@@ -1,10 +1,12 @@
+#include<Windows.h>
+#include<wingdi.h>
+#include<string.h>
+
 #include"graphics.h"
 #include"cursor.h"
-#include<winuser.h>
 #include"genlib.h"
 #include"cursor.h"
 #include"printer.h"
-#include<string.h>
 #include "editor.h"
 #include "keyboard.h"
 static string text_string;
@@ -161,17 +163,11 @@ void Space(){
 }
 
 void Backspace(){
-    CURSOR_T *cursor;
-    cursor=GetCurrentCursor();
-    swap(cursor);
-    if(cursor->PTR_1==cursor->PTR_2){
-        if(cursor->PTR_1!=0){
-            DeleteString(1);
-        }
-    }else{
-        DeleteString(0);
-    }
-    
+    DeleteString(1);
+}
+
+void Delete(){
+    DeleteString(2);
 }
 
 void keyboardevent(int key, int event){
@@ -179,11 +175,12 @@ void keyboardevent(int key, int event){
     if(key==VK_LEFT&&event==KEY_DOWN) leftkey();
     if(key==VK_RIGHT&&event==KEY_DOWN) rightkey();
     if(key==VK_UP&&event==KEY_DOWN) upkey();
-    if(key==VK_DOWN&&event==KEY_DOWN) dnowkey();
+    if(key==VK_DOWN&&event==KEY_DOWN) downkey();
     
-    if(key==VK_RETURN&&event==KEY_DOWN) Retrun();
+    if(key==VK_RETURN&&event==KEY_DOWN) Return();
     if(key==VK_SPACE&&event==KEY_DOWN)  Space();
     if(key==VK_BACK&&event==KEY_DOWN)  Backspace();
+    if(key==VK_DELETE&&event==KEY_DOWN) Delete();
 
     if(key==VK_SHIFT&&event==KEY_DOWN) isShitfDown=1;
     if(key==VK_SHIFT&&event==KEY_UP) isShitfDown=0;

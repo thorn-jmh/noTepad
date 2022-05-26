@@ -1,3 +1,4 @@
+#include<Windows.h>
 #include"graphics.h"
 #include"cursor.h"
 #include<winuser.h>
@@ -8,10 +9,10 @@
 #include "editor.h"
 static char str[1000];
 static int ptr;
-void charevent(int key){
+void charevent(char key){
     if(key==VK_BACK) return;
     ptr=0;
     str[ptr++]=key;
-    //str[ptr]='\0';     这一段要了会在dev上出错暂时不要
+    str[ptr]='\0';
     InputString(str);
 }

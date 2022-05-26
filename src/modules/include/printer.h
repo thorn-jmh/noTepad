@@ -11,6 +11,14 @@
 #include"cursor.h"
 #include"pages.h"
 
+string GetTextSize();
+string GetTextFont();
+
+void SetTextFont(string font);
+
+void SetTextSize(string size);
+
+
 void CLearTextBar();
 
 void PrintTheText(bool print);
