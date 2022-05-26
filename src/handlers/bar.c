@@ -122,5 +122,7 @@ void  mouse_test(int x, int y, int button, int event){
     UpdatePageInfo();
     PrintTheText(1);
     UpdateAllBar();
-
+    cleanSliper();
+    sliper();
+    DrawSliper();
 }
