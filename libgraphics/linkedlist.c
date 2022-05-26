@@ -51,7 +51,7 @@ linkedlistADT DeleteCurrentNodeWithOutFree(linkedlistADT head, linkedlistADT cur
 		nodeptr = nodeptr->next;
 	}
 	if (nodeptr == NULL)
-		return;
+		return NULL;
 
 	prenodeptr->next = nodeptr->next;
 	return nodeptr;

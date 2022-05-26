@@ -24,7 +24,7 @@
 
 #define MAX_TIME_INTERVAL 1
 #define INIT_FILEBUF_SIZE 2048
-#define UNSAVED_NEW_FILE "new_file"
+#define UNSAVED_NEW_FILE "new_file.txt"
 
 typedef enum
 {

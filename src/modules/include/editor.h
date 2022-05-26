@@ -7,9 +7,15 @@
 
 #include"genlib.h"
 
+void InitBarText();
+
+void CloseBarText();
+
+string GetBarText();
+
 void InputString(string newstr);
 
-void DeleteString();
+void DeleteString(int direct);
 
 void CopyTheString();
 
