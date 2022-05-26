@@ -3,6 +3,38 @@
 #include <stddef.h>
 
 #include "pages.h"
+static double slipermargin = 0.05;
+enum MODE{
+    NONE,
+    SHIFT,
+    FOLLOW,
+};
+
+typedef struct{//静态全局记录滑块顶端的位置
+    double  top;
+    double  buttom;
+} Block;
+
+//记得把这一段删掉！！！！！
+typedef struct
+{
+    double X, Y;
+} X_Y;
+
+typedef struct
+{
+    X_Y LT, RB; //左上右下两个参数
+} AREA;
+
+typedef struct
+{
+    AREA PAGE, TEXT, TOPBAR, SLIPER, NOTI, LEFTBAR;
+} PAGE_T;
+////记得把这一段删掉！！！！
+
+
+static Block theblock;
+
 
 //滑条部分
 void drawRect(double x, double y, double w, double h)
@@ -69,10 +101,13 @@ void DrawSliperBlock()
     double inch = GetSliperInch();
     double blockl = SliperLength();
 
-    double blockTop = toph + (theLine->Fline - 1) * inch;
+
+    double blockTop = toph + (theLine->Fline - 1) * inch;//距离顶端的距离
+    theblock.buttom =  windowh - (blockTop + blockl);
+    theblock.top = windowh - blockTop;
     SetPenColor("black");
     StartFilledRegion(0.9);
-    drawRect(windoww - sliperw, windowh - (blockTop + blockl), sliperw, blockl);
+    drawRect(windoww - sliperw, theblock.buttom, sliperw, blockl);
     EndFilledRegion();
 }
 
@@ -81,3 +116,104 @@ void DrawSliper()
     DrawSliperBase();
     DrawSliperBlock();
 }
+
+
+int InSliperZoom(){
+    MOUSE_T *mp =GetCurrentMouse();
+
+    double mx = ScaleXInches(mp->X);
+    double my = my = ScaleYInches(mp->Y);
+
+    PAGE_T *pgt = GetPageInfo();
+    if(mx>=pgt->SLIPER.LT.X&&mx<=pgt->SLIPER.RB.X-0.005) return 1;
+    else return 0;
+}
+
+int InSliperblock(){
+    double blockL = SliperLength();
+    MOUSE_T *mp =GetCurrentMouse();
+    double mx = ScaleXInches(mp->X);
+    double my = my = ScaleYInches(mp->Y);
+    PAGE_T *pgt = GetPageInfo();
+    double windowh = pgt->PAGE.LT.Y;
+    
+    if(mx>=pgt->SLIPER.LT.X&&
+    mx<=pgt->SLIPER.RB.X-0.005&&
+    my<=theblock.top &&
+    my>=theblock.buttom) return 1;
+    else return 0;
+}
+
+static int MODE;
+static double last_my, current_my;
+
+void sliper(){
+    //判断是跟随鼠标滑动还是瞬移
+    MOUSE_T* MousePtr = GetCurrentMouse();
+    double mx = ScaleXInches(MousePtr->X);
+    double my = ScaleYInches(MousePtr->Y);
+
+    if(MousePtr->button == LEFT_BUTTON&&MousePtr->event==BUTTON_DOWN){
+        if(InSliperblock()) MODE = FOLLOW;
+        else if(InSliperZoom()){
+            MODE = SHIFT;
+            last_my = my;//记录点击下去的时候的y坐标
+        }
+    }
+
+    LINE_T* LinePtr = GetCurrentLine();
+    double inch = GetSliperInch();
+    double length = SliperLength();
+
+    //滚轮
+    if(MousePtr->button==MIDDLE_BUTTON&&MousePtr->event==ROLL_DOWN){
+        LinePtr->Fline+=1;
+        if(LinePtr->Fline<=1)LinePtr->Fline=1;
+        if(LinePtr->Fline>=LinePtr->Tline)LinePtr->Fline=LinePtr->Tline;
+    }
+
+    if(MousePtr->button==MIDDLE_BUTTON&&MousePtr->event==ROLL_UP){
+        LinePtr->Fline-=1;
+        if(LinePtr->Fline<=1)LinePtr->Fline=1;
+        if(LinePtr->Fline>=LinePtr->Tline)LinePtr->Fline=LinePtr->Tline;
+    }
+
+    //点击滑块之外，瞬移
+    if(MODE == SHIFT){
+        int ShiftL =-((my-theblock.top+(length/2))/inch) ;
+        LinePtr->Fline +=ShiftL;
+        if(LinePtr->Fline<=1)LinePtr->Fline=1;
+        if(LinePtr->Fline>=LinePtr->Tline)LinePtr->Fline=LinePtr->Tline;
+        MODE = NONE;
+    }
+
+    //点击滑块，跟随
+    if(MODE == FOLLOW){
+        current_my = my;
+        
+        if(current_my-last_my>=inch
+        ||current_my-last_my<=-inch){
+            int ShiftL;
+            ShiftL = (current_my-last_my>0?1:-1)*-1;
+            LinePtr->Fline+=ShiftL;
+            if(LinePtr->Fline<=1)LinePtr->Fline=1;
+            if(LinePtr->Fline>=LinePtr->Tline)LinePtr->Fline=LinePtr->Tline;
+            last_my = current_my;
+        }
+
+        if(MousePtr->button == LEFT_BUTTON&&
+        MousePtr->event==BUTTON_UP) MODE=NONE;
+    }
+}
+
+void cleanSliper(){
+    PAGE_T *pgt = GetPageInfo();
+    SetPenColor("white");
+    StartFilledRegion(0);
+    drawRect(pgt->SLIPER.LT.X,
+             pgt->SLIPER.RB.Y,
+             pgt->SLIPER.RB.X - pgt->SLIPER.LT.X,
+             pgt->SLIPER.LT.Y - pgt->SLIPER.RB.Y);
+    EndFilledRegion();
+}
+
