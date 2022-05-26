@@ -104,24 +104,29 @@ void DrawSliper()
 int InSliperZoom(){
     MOUSE_T *mp =GetCurrentMouse();
 
-    double mx = ScaleXInches(mp->X);
-    double my = my = ScaleYInches(mp->Y);
+    double mx = mp->X;
+    double my = mp->Y;
 
     PAGE_T *pgt = GetPageInfo();
-    if(mx>=pgt->SLIPER.LT.X&&mx<=pgt->SLIPER.RB.X-0.005) return 1;
+    double windowsh = GetWindowHeight();
+    double windowsw = GetWindowWidth();
+
+
+    if(mx<=windowsw-pgt->SLIPER.LT.X&&mx>=windowsw-(pgt->SLIPER.RB.X-0.005)) return 1;
     else return 0;
 }
 
 int InSliperblock(){
     double blockL = SliperLength();
     MOUSE_T *mp =GetCurrentMouse();
-    double mx = ScaleXInches(mp->X);
-    double my = my = ScaleYInches(mp->Y);
+    double mx = mp->X;
+    double my = my = mp->Y;
     PAGE_T *pgt = GetPageInfo();
     double windowh = pgt->PAGE.LT.Y;
+    double windowsw = GetWindowWidth();
     
-    if(mx>=pgt->SLIPER.LT.X&&
-    mx<=pgt->SLIPER.RB.X-0.005&&
+    if(mx<=windowsw-pgt->SLIPER.LT.X&&
+    mx>=windowsw-(pgt->SLIPER.RB.X-0.005)&&
     my<=theblock.top &&
     my>=theblock.buttom) return 1;
     else return 0;
@@ -145,8 +150,8 @@ int * testShiftL(){
 void sliper(){
     //判断是跟随鼠标滑动还是瞬移
     MOUSE_T* MousePtr = GetCurrentMouse();
-    double mx = ScaleXInches(MousePtr->X);
-    double my = ScaleYInches(MousePtr->Y);
+    double mx = MousePtr->X;
+    double my = MousePtr->Y;
 
     if(MousePtr->button == LEFT_BUTTON&&MousePtr->event==BUTTON_DOWN){
         if(InSliperblock()) MODE = FOLLOW;
