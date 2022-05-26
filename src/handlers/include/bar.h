@@ -1,5 +1,5 @@
-#ifndef _bartheme_h
-#define _bartheme_h
+#ifndef _bar_h
+#define _bar_h
 
 #include "genlib.h"
 
@@ -22,17 +22,24 @@ struct _BAR_THEME
 
 typedef enum
 {
-    ORIGIN,
-    FILE_EXT,
-    EDIT_EXT,
-    CONF_EXT,
-    FONT_EXT,
-    THEME_EXT,
-    SEARCH_EXT
+    ORIGIN = 0,       //0
+    FILE_EXT = 1,     //1
+    EDIT_EXT = 2,     //10
+    CONF_EXT = 4,     //100
+    SEARCH_EXT = 8,   //1000
+    SETTING_EXT = 16, //10000
+    CLEAR_EXT = 24,   // 11000
 } BAR_STATUS;
 
 void SetBarStatus(BAR_STATUS status);
 
+BAR_STATUS GetBarStatus();
+
+
 BAR_THEME GetBarTheme();
+
+void UpdateAllBar();
+
+void  mouse_test(int x, int y, int button, int event);
 
 #endif

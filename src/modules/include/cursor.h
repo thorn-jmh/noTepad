@@ -25,7 +25,7 @@ typedef struct {
   ACL_Mouse_Button button;
   ACL_Mouse_Event event;
   size_t PTR;
-  int X, Y;
+  double X, Y;
 } MOUSE_T;
 
 

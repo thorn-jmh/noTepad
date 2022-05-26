@@ -7,128 +7,49 @@
 #include "genlib.h"
 #include "graphics.h"
 #include "extgraph.h"
-#include "clipboard.h"
+#include "editor.h"
 #include "pages.h"
 #include "topbar.h"
 #include "bar.h"
+#include "bar_callback.h"
 
-static BOTTON_T FILE_BOTTON = {
-    .name = "文件",
-    .hotkey = "Alt+F",
-    .func = NULL,
-};
-static BOTTON_T OPEN_BOTTON = {
-    .name = "打开",
-    .hotkey = "Ctrl+O",
-    .func = NULL,
-};
-static BOTTON_T CLOSE_BOTTON = {
-    .name = "关闭",
-    .hotkey = "Ctrl+T",
-    .func = NULL,
-};
-static BOTTON_T NEW_BOTTON = {
-    .name = "新建",
-    .hotkey = "Ctrl+N",
-    .func = NULL,
-};
-static BOTTON_T SAVE_BOTTON = {
-    .name = "保存",
-    .hotkey = "Ctrl+S",
-    .func = NULL,
-};
-static BOTTON_T SAVEAS_BOTTON = {
-    .name = "另存为",
-    .hotkey = NULL,
-    .func = NULL,
-};
+extern BOTTON_T FILE_BOTTON;
+extern BOTTON_T OPEN_BOTTON;
+extern BOTTON_T CLOSE_BOTTON;
+extern BOTTON_T NEW_BOTTON;
+extern BOTTON_T SAVE_BOTTON;
+extern BOTTON_T SAVEAS_BOTTON;
 
-static BOTTON_T EDIT_BOTTON = {
-    .name = "编辑",
-    .hotkey = "Alt+E",
-    .func = NULL,
-};
-static BOTTON_T SEARCH_BOTTON = {
-    .name = "搜索",
-    .hotkey = "Ctrl+F",
-    .func = NULL,
-};
-static BOTTON_T PASTE_BOTTON = {
-    .name = "粘贴",
-    .hotkey = "Ctrl+V",
-    .func = NULL,
-};
-static BOTTON_T COPY_BOTTON = {
-    .name = "复制",
-    .hotkey = "Ctrl+C",
-    .func = NULL,
-};
-static BOTTON_T CUT_BOTTON = {
-    .name = "剪切",
-    .hotkey = "Ctrl+X",
-    .func = NULL,
-};
-static BOTTON_T DELETE_BOTTON = {
-    .name = "删除",
-    .hotkey = "Ctrl+D",
-    .func = NULL,
-};
-static BOTTON_T SELECT_BOTTON = {
-    .name = "全选",
-    .hotkey = "Ctrl+A",
-    .func = NULL,
-};
+extern BOTTON_T EDIT_BOTTON;
+extern BOTTON_T SEARCH_BOTTON;
+extern BOTTON_T PASTE_BOTTON;
+extern BOTTON_T COPY_BOTTON;
+extern BOTTON_T CUT_BOTTON;
+extern BOTTON_T DELETE_BOTTON;
+extern BOTTON_T SELECT_BOTTON;
 
-static BOTTON_T CONF_BOTTON = {
-    .name = "设置",
-    .hotkey = "Alt+C",
-    .func = NULL,
-};
-static BOTTON_T FONT_BOTTON = {
-    .name = "字体",
-    .hotkey = NULL,
-    .func = NULL,
-};
-static BOTTON_T SIZE_BOTTON = {
-    .name = "字号",
-    .hotkey = NULL,
-    .func = NULL,
-};
-static BOTTON_T THEME_BOTTON = {
-    .name = "主题",
-    .hotkey = NULL,
-    .func = NULL,
-};
+extern BOTTON_T CONF_BOTTON;
+extern BOTTON_T FONT_BOTTON;
+extern BOTTON_T SIZE_BOTTON;
+extern BOTTON_T THEME_BOTTON;
 
-static BOTTON_T HELP_BOTTON = {
-    .name = "帮助",
-    .hotkey = "Alt+H",
-    .func = NULL,
-};
+extern BOTTON_T HELP_BOTTON;
 
-static BOTTON_T SET_BOTTON = {
-    .name = "设定",
-    .hotkey = NULL,
-    .func = NULL,
-};
-static BOTTON_T NEXT_BOTTON = {
-    .name = "NEXT",
-    .hotkey = NULL,
-    .func = NULL,
-};
-static BOTTON_T LAST_BOTTON = {
-    .name = "LAST",
-    .hotkey = NULL,
-    .func = NULL,
-};
-static BOTTON_T CANCEL_BOTTON = {
-    .name = "关闭",
-    .hotkey = NULL,
-    .func = NULL,
-};
+extern BOTTON_T SET_BOTTON;
+extern BOTTON_T NEXT_BOTTON;
+extern BOTTON_T LAST_BOTTON;
+extern BOTTON_T CANCEL_BOTTON;
 
-static string BARTEXT = NULL;
-#define MAX_BARTEXT 120 //Byte
+static void drawTextBar(double x, double y, double w, double h);
+static void printBarText(double x, double y, double w, double h);
+static void drawTopBar(double x, double y, double w, double h, BOTTON_T botton);
+static bool checkMouse(double x, double y, double w, double h, bool key);
+static void drawTopBarText(double x, double y, double w, double h, BOTTON_T botton);
+static void StartDrawTopBar();
+static void drawRectangle(double x, double y, double w, double h, int fillflag, string color);
+static void drawTopBarFrame(double y, double w, double h);
+static void drawTopBarList(double x, double y, double w, double h, int num, ...);
+
 #define WPER 0.74
 #define MARGIN 0.1
 
@@ -160,7 +81,7 @@ static void drawRectangle(double x, double y, double w, double h, int fillflag, 
     SetPenColor(ccolor);
 }
 
-void StartDrawTopBar()
+static void StartDrawTopBar()
 {
     BAR_THEME theme_tp = GetBarTheme();
     SetPenColor(theme_tp.text);
@@ -171,7 +92,7 @@ void StartDrawTopBar()
 }
 
 // return pen to x,y
-void drawTopBarText(double x, double y, double w, double h, BOTTON_T botton)
+static void drawTopBarText(double x, double y, double w, double h, BOTTON_T botton)
 {
     if (botton.name == NULL)
         return;
@@ -189,6 +110,8 @@ void drawTopBarText(double x, double y, double w, double h, BOTTON_T botton)
     string hotk = NULL;
     if (strstr(botton.hotkey, "Ctrl+") != NULL)
         hotk = botton.hotkey;
+    else if (strlen(botton.hotkey) <= 0)
+        hotk = "nil";
     else
         hotk = botton.hotkey + strlen(botton.hotkey) - 1;
     MovePen(x + w - actF / 2 - TextStringWidth(hotk), y - h / 2 - actF / 2);
@@ -196,7 +119,7 @@ void drawTopBarText(double x, double y, double w, double h, BOTTON_T botton)
     MovePen(x, y);
 }
 
-bool checkMouse(double x, double y, double w, double h, bool key)
+static bool checkMouse(double x, double y, double w, double h, bool key)
 {
     MOUSE_T *mst = GetCurrentMouse();
     if (key && mst->event == BUTTON_UP)
@@ -207,157 +130,7 @@ bool checkMouse(double x, double y, double w, double h, bool key)
     return FALSE;
 }
 
-// return pen to x,y
-void drawTopBar(double x, double y, double w, double h, BOTTON_T botton)
-{
-    StartDrawTopBar();
-
-    BAR_THEME theme_tp = GetBarTheme();
-    if (checkMouse(x, y, w, h, FALSE))
-    {
-        drawRectangle(x, y, w, -h, TRUE, theme_tp.high);
-        if (checkMouse(0, 0, 0, 0, TRUE))
-        {
-            botton.func();
-        }
-    }
-    else
-        drawRectangle(x, y, w, -h, TRUE, theme_tp.barbk);
-    SetPenSize(2);
-    drawRectangle(x, y, w, -h, FALSE, theme_tp.frame);
-    drawTopBarText(x, y, w, h, botton);
-}
-
-void drawTopBarList(double x, double y, double w, double h, int num, ...)
-{
-    va_list bottons;
-    va_start(bottons, h);
-
-    for (int i = 0; i < num; i++)
-    {
-        BOTTON_T botton_tp = va_arg(bottons, BOTTON_T);
-        drawTopBar(x, y - h * i, w, h, botton_tp);
-    }
-}
-
-void drawTopBars()
-{
-    PAGE_T *pgt = GetPageInfo();
-    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
-    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
-    double startY = pgt->TOPBAR.LT.Y;
-    double startX = heightT;
-    double Wper = WPER;
-    BAR_THEME theme_tp = GetBarTheme();
-    SetPenSize(1);
-    drawRectangle(0, startY, widthT, -heightT, TRUE, theme_tp.barbk);
-    SetPenSize(2);
-    drawRectangle(0, startY, widthT, -heightT, FALSE, theme_tp.frame);
-
-    drawTopBar(startX, startY, Wper, heightT, FILE_BOTTON);
-    drawTopBar(startX + Wper, startY, Wper, heightT, EDIT_BOTTON);
-    drawTopBar(startX + 2 * Wper, startY, Wper, heightT, CONF_BOTTON);
-    drawTopBar(startX + 3 * Wper, startY, Wper, heightT, HELP_BOTTON);
-}
-
-void InitBarText()
-{
-    BARTEXT = (string)malloc(MAX_BARTEXT * sizeof(char));
-    *BARTEXT = '\0';
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 2;
-    crst->PTR_1 = crst->PTR_2 = 0;
-}
-
-string GetBarText()
-{
-    return BARTEXT;
-}
-
-void DeleteBarText()
-{
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
-    if (ptrf == ptrb && ptrf != 0)
-    {
-        while (OneCharLength(*(BARTEXT + ptrf - 1)) == -1)
-        {
-            ptrf--;
-        }
-        ptrf--;
-    }
-
-    string tpstr = (string)malloc((strlen(BARTEXT + ptrb) + 1) * sizeof(char));
-    strcpy(tpstr, BARTEXT + ptrb);
-    strcpy(BARTEXT + ptrf, tpstr);
-    free(tpstr);
-
-    crst->PTR_1 = crst->PTR_2 = ptrf;
-}
-
-void InputBarText(string newstr)
-{
-    size_t oldlen, newlen;
-    oldlen = strlen(BARTEXT);
-    newlen = strlen(newstr);
-    if (newlen + oldlen >= MAX_BARTEXT)
-        return;
-
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
-
-    if (ptrf != ptrb)
-        DeleteBarText();
-
-    crst = GetCurrentCursor();
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
-
-    string tpstr = (string)malloc((strlen(BARTEXT + ptrb) + 1) * sizeof(char));
-    strcpy(tpstr, BARTEXT + ptrb);
-    strcpy(BARTEXT + ptrf, newstr);
-    strcpy(BARTEXT + ptrf + newlen, tpstr);
-    free(tpstr);
-    crst->PTR_1=crst->PTR_2=ptrf+newlen;
-}
-
-void CopyBarText()
-{
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
-    if (ptrf == ptrb)
-        return;
-
-    string tpstr = (string)malloc((ptrb - ptrf + 1) * sizeof(char));
-    memcpy(tpstr, BARTEXT + ptrf, ptrb - ptrf);
-    *(tpstr + ptrb - ptrf) = '\0';
-
-    AddStrToClipBoard(tpstr);
-    free(tpstr);
-}
-
-void PasteBarText()
-{
-    string newstr = GetStrFromClipBoard();
-    InputBarText(newstr);
-    free(newstr);
-}
-
-void CloseBarText()
-{
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 0;
-    free(BARTEXT);
-    BARTEXT = NULL;
-}
-
-void printBarText(double x, double y, double w, double h)
+static void printBarText(double x, double y, double w, double h)
 {
     BAR_THEME theme_tp = GetBarTheme();
     CURSOR_T *crst = GetCurrentCursor();
@@ -372,7 +145,8 @@ void printBarText(double x, double y, double w, double h)
     double htF = GetFontHeight();
     MovePen(x + actF / 2, y - h / 2 - actF / 2 + dctF);
     double lenline = actF;
-    string text = BARTEXT;
+    string text = GetBarText();
+    string Btext=GetBarText();
     while (TRUE)
     {
         size_t olen = OneCharLength(*text);
@@ -388,9 +162,9 @@ void printBarText(double x, double y, double w, double h)
             break;
         }
         PenMove(0, -dctF);
-        if (crst->focus==2 && (text - BARTEXT) == ptrf && ptrf == ptrb)
+        if (crst->focus == 2 && (text - Btext) == ptrf && ptrf == ptrb)
             drawRectangle(-1, -1, -dctF / 3, htF, TRUE, theme_tp.cursor_color);
-        if ((text - BARTEXT) >= ptrf && (text - BARTEXT) < ptrb)
+        if ((text - Btext) >= ptrf && (text - Btext) < ptrb)
             drawRectangle(-1, -1, one_width, htF, TRUE, theme_tp.text_select);
         else
             drawRectangle(-1, -1, one_width, htF, TRUE, theme_tp.textbk);
@@ -398,14 +172,15 @@ void printBarText(double x, double y, double w, double h)
         DrawTextString(tpstr);
         free(tpstr);
 
-        if((*text) == '\0'){
+        if ((*text) == '\0')
+        {
             break;
         }
         text += olen;
     }
 }
 
-void drawTextBar(double x, double y, double w, double h)
+static void drawTextBar(double x, double y, double w, double h)
 {
     BAR_THEME theme_tp = GetBarTheme();
 
@@ -414,6 +189,49 @@ void drawTextBar(double x, double y, double w, double h)
     StartDrawTopBar();
     SetPenColor(theme_tp.text);
     printBarText(x, y, w, h);
+}
+
+// return pen to x,y
+static void drawTopBar(double x, double y, double w, double h, BOTTON_T botton)
+{
+    StartDrawTopBar();
+
+    BAR_THEME theme_tp = GetBarTheme();
+    if (checkMouse(x, y, w, h, FALSE))
+    {
+        drawRectangle(x, y, w, -h, TRUE, theme_tp.high);
+        if (checkMouse(0, 0, 0, 0, TRUE))
+        {
+            if (botton.func != NULL)
+                botton.func();
+        }
+    }
+    else
+        drawRectangle(x, y, w, -h, TRUE, theme_tp.barbk);
+    SetPenSize(2);
+    drawRectangle(x, y, w, -h, FALSE, theme_tp.frame);
+    drawTopBarText(x, y, w, h, botton);
+}
+
+static void drawTopBarFrame(double y, double w, double h)
+{
+    BAR_THEME theme_tp = GetBarTheme();
+    SetPenSize(1);
+    drawRectangle(0, y, w, -h, TRUE, theme_tp.barbk);
+    SetPenSize(2);
+    drawRectangle(0, y, w, -h, FALSE, theme_tp.frame);
+}
+
+static void drawTopBarList(double x, double y, double w, double h, int num, ...)
+{
+    va_list bottons;
+    va_start(bottons, num);
+
+    for (int i = 0; i < num; i++)
+    {
+        BOTTON_T botton_tp = va_arg(bottons, BOTTON_T);
+        drawTopBar(x, y - h * i, w, h, botton_tp);
+    }
 }
 
 void drawSearchBar()
@@ -438,4 +256,63 @@ void drawSettingBar()
     drawTextBar(startX, startY, 2 * WPER, heightT);
     drawTopBar(startX + (7.0 / 3) * WPER, startY, WPER, heightT, SET_BOTTON);
     drawTopBar(startX + (11.0 / 3) * WPER, startY, WPER, heightT, CANCEL_BOTTON);
+}
+
+void drawTopBars()
+{
+    PAGE_T *pgt = GetPageInfo();
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y;
+    double startX = heightT;
+    double Wper = WPER;
+    drawTopBarFrame(startY, widthT, heightT);
+
+    drawTopBar(startX, startY, Wper, heightT, FILE_BOTTON);
+    drawTopBar(startX + Wper, startY, Wper, heightT, EDIT_BOTTON);
+    drawTopBar(startX + 2 * Wper, startY, Wper, heightT, CONF_BOTTON);
+    drawTopBar(startX + 3 * Wper, startY, Wper, heightT, HELP_BOTTON);
+}
+
+void drawFileExt()
+{
+    BAR_THEME theme_tp = GetBarTheme();
+    PAGE_T *pgt = GetPageInfo();
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y - heightT;
+    double startX = heightT;
+    double Wper = WPER;
+
+    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * widthT, -5 * heightT, TRUE, theme_tp.textbk);
+    drawTopBarList(startX, startY, 2 * Wper, heightT, 5,
+                   NEW_BOTTON, OPEN_BOTTON, CLOSE_BOTTON, SAVE_BOTTON, SAVEAS_BOTTON);
+}
+
+void drawEditExt()
+{
+    BAR_THEME theme_tp = GetBarTheme();
+    PAGE_T *pgt = GetPageInfo();
+    double Wper = WPER;
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y - heightT;
+    double startX = heightT + Wper;
+    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * widthT, -6 * heightT, TRUE, theme_tp.textbk);
+    drawTopBarList(startX, startY, 2 * Wper, heightT, 6,
+                   SEARCH_BOTTON, CUT_BOTTON, COPY_BOTTON, PASTE_BOTTON, DELETE_BOTTON, SELECT_BOTTON);
+}
+
+void drawConfExt()
+{
+    BAR_THEME theme_tp = GetBarTheme();
+    PAGE_T *pgt = GetPageInfo();
+    double Wper = WPER;
+    double widthT = pgt->TOPBAR.RB.X - pgt->TOPBAR.LT.X;
+    double heightT = pgt->TOPBAR.LT.Y - pgt->TOPBAR.RB.Y;
+    double startY = pgt->TOPBAR.LT.Y - heightT;
+    double startX = heightT + 2 * Wper;
+    drawRectangle(startX - MARGIN / 4, startY + MARGIN / 4, 2 * widthT, -3 * heightT, TRUE, theme_tp.textbk);
+    drawTopBarList(startX, startY, 2 * Wper, heightT, 3,
+                   FONT_BOTTON, SIZE_BOTTON, THEME_BOTTON);
 }

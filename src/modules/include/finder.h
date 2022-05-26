@@ -1,3 +1,6 @@
+#ifndef _finder_h
+#define _finder_h
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,3 +24,5 @@ size_t WhereFoundStr();
 void NextFoundStr();
 
 void LastFoundStr();
+
+#endif

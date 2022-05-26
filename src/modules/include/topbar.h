@@ -7,31 +7,17 @@
 
 #include "genlib.h"
 
-typedef struct
-{
-    string name;
-    string hotkey;
-    void (*func)();
-} BOTTON_T;
-
-void DeleteBarText();
-
-void InputBarText(string newstr);
-
-void PasteBarText();
-
-void CopyBarText();
-
-void InitBarText();
-
-void CloseBarText();
-
-string GetBarText();
 
 void drawTopBars();
 
 void drawSettingBar();
 
 void drawSearchBar();
+
+void drawFileExt();
+
+void drawEditExt();
+
+void drawConfExt();
 
 #endif
