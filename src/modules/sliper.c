@@ -15,23 +15,6 @@ typedef struct{//静态全局记录滑块顶端的位置
     double  buttom;
 } Block;
 
-//记得把这一段删掉！！！！！
-typedef struct
-{
-    double X, Y;
-} X_Y;
-
-typedef struct
-{
-    X_Y LT, RB; //左上右下两个参数
-} AREA;
-
-typedef struct
-{
-    AREA PAGE, TEXT, TOPBAR, SLIPER, NOTI, LEFTBAR;
-} PAGE_T;
-////记得把这一段删掉！！！！
-
 
 static Block theblock;
 
