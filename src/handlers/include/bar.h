@@ -37,6 +37,10 @@ BAR_STATUS GetBarStatus();
 
 
 BAR_THEME GetBarTheme();
+void ChangeThemeByName(string name);
+string GetThemeName();
+
+
 
 void UpdateAllBar();
 

@@ -200,6 +200,7 @@ bool SaveTheFile(string filepath)
   {
     filepath = CurrentFile->OriginText + CurrentFile->UnderL + 1;
   }
+  updateFilePath(filepath,FALSE);
   stream file = NULL;
   int err = fopen_s(&file, filepath, "w");
   if (err != 0)

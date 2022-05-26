@@ -15,9 +15,12 @@ void drawSettingBar();
 void drawSearchBar();
 
 void drawFileExt();
+void preDrawFileExt();
 
 void drawEditExt();
+void preDrawEditExt();
 
 void drawConfExt();
+void preDrawConfExt();
 
 #endif

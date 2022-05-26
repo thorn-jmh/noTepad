@@ -13,7 +13,7 @@ typedef struct
 } * REC_NODE;
 
 static linkedlistADT FOUND_LIST, FOUND_NODE;
-static int REC_LEN, REC_NUM;
+static int REC_LEN=-1, REC_NUM=-1;
 static linkedlistADT HIGHLIGHT;
 
 linkedlistADT GetCurrentHighlight()
@@ -53,7 +53,7 @@ void FindSubStr(string target)
 
 void FreeFoundList()
 {
-    REC_LEN = REC_NUM = 0;
+    REC_LEN = REC_NUM = -1;
     FreeLinkedList(FOUND_LIST);
     FreeLinkedList(HIGHLIGHT);
     FOUND_LIST = NULL;

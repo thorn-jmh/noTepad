@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "bar_callback.h"
+#include "printer.h"
 #include "bar.h"
 #include "file.h"
 #include "cursor.h"
@@ -29,12 +30,11 @@ static void openfile_set()
 static void opencbk()
 {
     InitBarText();
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 2;
     InputString("newfile.txt");
 
     BAR_STATUS status = GetBarStatus();
     status &= (~CLEAR_EXT);
+    status &= CLEAR_EXT;
     status |= SETTING_EXT;
     SetBarStatus(status);
 
@@ -42,14 +42,23 @@ static void opencbk()
 }
 static void closecbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
     CloseTheFile(FALSE); //TODO: 询问
 }
 static void newcbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
     OpenTheFile(NULL);
 }
 static void savecbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
     SaveTheFile(NULL);
 }
 static void saveas_set()
@@ -65,17 +74,16 @@ static void saveas_set()
 static void saveascbk()
 {
     InitBarText();
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 2;
     string filename = GetFileName(CurrentFileI());
     InputString(filename);
 
     BAR_STATUS status = GetBarStatus();
     status &= (~CLEAR_EXT);
+    status &= CLEAR_EXT;
     status |= SETTING_EXT;
     SetBarStatus(status);
 
-    set_botton_cbk = openfile_set;
+    set_botton_cbk = saveas_set;
 }
 
 static void editextcbk()
@@ -87,23 +95,41 @@ static void editextcbk()
 }
 static void copycbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
     CopyTheString();
 }
 static void pastecbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
     PasteTheString();
 }
 static void cutcbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
+
     CopyTheString();
     DeleteString(0);
 }
 static void deletecbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
+
     DeleteString(0);
 }
 static void selectcbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
+
     CURSOR_T *crst = GetCurrentCursor();
     crst->PTR_1 = crst->PTR_2 = 0;
     string text = GetStrText();
@@ -113,7 +139,18 @@ static void selectcbk()
         crst->PTR_2++;
     }
 }
-static void searchcbk();
+static void searchcbk(){
+    InitBarText();
+    InputString("");
+
+    BAR_STATUS status = GetBarStatus();
+    status &= (~CLEAR_EXT);
+    status |= SEARCH_EXT;
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
+
+    set_botton_cbk = openfile_set;
+}
 
 static void confextcbk()
 {
@@ -125,45 +162,98 @@ static void confextcbk()
 static void font_set()
 {
     string text = GetBarText();
-    //TODO: SET FONT
-    CloseBarText();
+    SetTextFont(text);
 
-    BAR_STATUS status = GetBarStatus();
-    status &= (~SETTING_EXT);
-    SetBarStatus(status);
+    size_t ptrb = 0;
+    while (*(text) != '\0')
+    {
+        ptrb++, text++;
+    }
+    CURSOR_T *crst=GetCurrentCursor();
+    crst->focus=2;
+    crst->PTR_1=0,crst->PTR_2=ptrb;
+    DeleteString(0);
+
+    InputString(GetTextFont());    
 }
 static void fontcbk()
 {
     InitBarText();
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 2;
     InputString("System");
 
     BAR_STATUS status = GetBarStatus();
     status &= (~CLEAR_EXT);
     status |= SETTING_EXT;
+    status &= CLEAR_EXT;
     SetBarStatus(status);
 
     set_botton_cbk = font_set;
+}
+static void size_set()
+{
+    string text = GetBarText();
+    SetTextSize(text);
+
+    size_t ptrb = 0;
+    while (*(text) != '\0')
+    {
+        ptrb++, text++;
+    }
+    CURSOR_T *crst=GetCurrentCursor();
+    crst->focus=2;
+    crst->PTR_1=0,crst->PTR_2=ptrb;
+    DeleteString(0);
+
+    InputString(GetTextSize());
 }
 static void sizecbk()
 {
     InitBarText();
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 2;
-    InputString("System");
+    InputString(GetTextSize());
 
     BAR_STATUS status = GetBarStatus();
     status &= (~CLEAR_EXT);
     status |= SETTING_EXT;
+    status &= CLEAR_EXT;
     SetBarStatus(status);
 
-    set_botton_cbk = font_set;
+    set_botton_cbk = size_set;
 }
-static void themecbk();
+static void theme_set(){
+   string text = GetBarText();
+    ChangeThemeByName(text);
+
+    size_t ptrb = 0;
+    while (*(text) != '\0')
+    {
+        ptrb++, text++;
+    }
+    CURSOR_T *crst=GetCurrentCursor();
+    crst->focus=2;
+    crst->PTR_1=0,crst->PTR_2=ptrb;
+    DeleteString(0);
+
+    InputString(GetThemeName()); 
+}
+static void themecbk(){
+    InitBarText();
+    InputString(GetThemeName());
+
+    BAR_STATUS status = GetBarStatus();
+    status &= (~CLEAR_EXT);
+    status |= SETTING_EXT;
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
+
+    set_botton_cbk = theme_set;
+}
 
 static void helpcbk()
 {
+    BAR_STATUS status = GetBarStatus();
+    status &= CLEAR_EXT;
+    SetBarStatus(status);
+
     system("cmd /c start https://github.com/");
 }
 
@@ -221,7 +311,7 @@ BOTTON_T EDIT_BOTTON = {
 BOTTON_T SEARCH_BOTTON = {
     .name = "搜索",
     .hotkey = "Ctrl+F",
-    .func = NULL,
+    .func = searchcbk,
 };
 BOTTON_T PASTE_BOTTON = {
     .name = "粘贴",
@@ -257,17 +347,17 @@ BOTTON_T CONF_BOTTON = {
 BOTTON_T FONT_BOTTON = {
     .name = "字体",
     .hotkey = "",
-    .func = NULL,
+    .func = fontcbk,
 };
 BOTTON_T SIZE_BOTTON = {
     .name = "字号",
     .hotkey = "",
-    .func = NULL,
+    .func = sizecbk,
 };
 BOTTON_T THEME_BOTTON = {
     .name = "主题",
     .hotkey = "",
-    .func = NULL,
+    .func = themecbk,
 };
 
 BOTTON_T HELP_BOTTON = {
