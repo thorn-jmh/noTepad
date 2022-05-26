@@ -81,42 +81,42 @@ bool InNotiArea(double x, double y)
 
 ///////// OLD ////////////////
 
-//void Noti(double mx, double my)
+// void Noti(double mx, double my)
 //{ //会按照传入的鼠标画一个长方体框框
-//    if (mx <= margin || mx >= thePage.TEXT.RB.X || my >= thePage.TEXT.RB.Y)
-//        return;
-//    DefineColor("gray", 0.8, 0.8, 0.8);
-//    SetPenColor("gray");
-//    int LorR, UporD;
-//    double inch = GetNotiInch();
-//    double windowh = GetWindowHeight();
-//    double windoww = GetWindowWidth();
-//    if (mx <= windoww / 2)
-//        LorR = 1;
-//    else
-//        LorR = -1;
-//    if (my <= windowh / 2)
-//        UporD = 1;
-//    else
-//        UporD = -1;
-//    drawRect(mx, my, LorR * notiw, UporD * notih);
-//    int i;
-//    for (i = 1; i <= notinum; i++)
-//    {
-//        MovePen(mx, my + i * UporD * inch);
-//        DrawLine(notiw * LorR, 0);
-//    }
+//     if (mx <= margin || mx >= thePage.TEXT.RB.X || my >= thePage.TEXT.RB.Y)
+//         return;
+//     DefineColor("gray", 0.8, 0.8, 0.8);
+//     SetPenColor("gray");
+//     int LorR, UporD;
+//     double inch = GetNotiInch();
+//     double windowh = GetWindowHeight();
+//     double windoww = GetWindowWidth();
+//     if (mx <= windoww / 2)
+//         LorR = 1;
+//     else
+//         LorR = -1;
+//     if (my <= windowh / 2)
+//         UporD = 1;
+//     else
+//         UporD = -1;
+//     drawRect(mx, my, LorR * notiw, UporD * notih);
+//     int i;
+//     for (i = 1; i <= notinum; i++)
+//     {
+//         MovePen(mx, my + i * UporD * inch);
+//         DrawLine(notiw * LorR, 0);
+//     }
 //
-//    thePage.NOTI.LT.X = mx < mx + LorR * notiw ? mx : mx + LorR * notiw;
-//    thePage.NOTI.LT.Y = my < my + UporD * notih ? my : my + UporD * notih;
-//    thePage.NOTI.RB.X = mx > mx + LorR * notiw ? mx : mx + LorR * notiw;
-//    thePage.NOTI.RB.Y = my > my + UporD * notih ? my : my + UporD * notih;
-//}
+//     thePage.NOTI.LT.X = mx < mx + LorR * notiw ? mx : mx + LorR * notiw;
+//     thePage.NOTI.LT.Y = my < my + UporD * notih ? my : my + UporD * notih;
+//     thePage.NOTI.RB.X = mx > mx + LorR * notiw ? mx : mx + LorR * notiw;
+//     thePage.NOTI.RB.Y = my > my + UporD * notih ? my : my + UporD * notih;
+// }
 //
-//double GetNotiInch()
+// double GetNotiInch()
 //{
-//    return notih / notinum;
-//}
+//     return notih / notinum;
+// }
 
 /*void testText(void)
 {
