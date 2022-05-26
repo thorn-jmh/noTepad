@@ -147,6 +147,18 @@ int InSliperblock(){
 static int MODE;
 static double last_my, current_my;
 
+int * testMode(){
+    int*p =&MODE;
+    return p;
+}
+
+static int testshiftL;
+int * testShiftL(){
+    int *p = &testshiftL;
+    return p;
+}
+
+
 void sliper(){
     //判断是跟随鼠标滑动还是瞬移
     MOUSE_T* MousePtr = GetCurrentMouse();
@@ -193,9 +205,8 @@ void sliper(){
         
         if(current_my-last_my>=inch
         ||current_my-last_my<=-inch){
-            int ShiftL;
-            ShiftL = (current_my-last_my>0?1:-1)*-1;
-            LinePtr->Fline+=ShiftL;
+            testshiftL =-((my-theblock.top+(length/2))/inch) ;
+            LinePtr->Fline+=testshiftL;
             if(LinePtr->Fline<=1)LinePtr->Fline=1;
             if(LinePtr->Fline>=LinePtr->Tline)LinePtr->Fline=LinePtr->Tline;
             last_my = current_my;
