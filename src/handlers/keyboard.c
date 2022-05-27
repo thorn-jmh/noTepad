@@ -3,18 +3,112 @@
 #include <string.h>
 
 #include "graphics.h"
-#include "cursor.h"
 #include "genlib.h"
 #include "cursor.h"
 #include "printer.h"
 #include "editor.h"
-#include "keyboard.h"
 #include "file.h"
 #include "bar_callback.h"
-static string text_string;
-// static bool isShitfDown = FALSE;
-// static bool isCtrlDown = FALSE;
-static bool isAltDown = FALSE;
+#include "keyboard.h"
+
+
+// static bool isAltDown = FALSE;
+
+static void leftkey();
+static void rightkey();
+static void upkey();
+static void downkey();
+
+static void Tab();
+static void Enter();
+static void Backspace();
+static void Delete();
+
+
+void CharInputEvent(char key)
+{
+    switch (key)
+    {
+    case 15:
+        opencbk();
+        return;
+    case 20:
+        closecbk();
+        return;
+    case 14:
+        newcbk();
+        return;
+    case 19:
+        savecbk();
+        return;
+    case 26:
+        undocbk();
+        return;
+    case 25:
+        redocbk();
+        return;
+    case 6:
+        searchcbk();
+        return;
+    case 22:
+        pastecbk();
+        return;
+    case 3:
+        copycbk();
+        return;
+    case 24:
+        cutcbk();
+        return;
+    case 4:
+        deletecbk();
+        return;
+    case 1:
+        selectcbk();
+        return;
+
+    default:
+        break;
+    }
+    if (key < 32 && key >= 0)
+        return;
+    string s = (string)malloc(2 * sizeof(char));
+    *s = key;
+    *(s + 1) = 0;
+    InputString(s);
+    free(s);
+}
+
+void KeyBoardEvent(int key, int event)
+{
+    string text_string = GetStrText();
+    if (key == VK_LEFT && event == KEY_DOWN)
+        leftkey();
+    if (key == VK_RIGHT && event == KEY_DOWN)
+        rightkey();
+    if (key == VK_UP && event == KEY_DOWN)
+        upkey();
+    if (key == VK_DOWN && event == KEY_DOWN)
+        downkey();
+
+    if (key == VK_ESCAPE && event == KEY_DOWN)
+        cancelcbk();
+    if (key == VK_RETURN && event == KEY_DOWN)
+        Enter();
+    if (key == VK_TAB && event == KEY_DOWN)
+        Tab();
+    if (key == VK_BACK && event == KEY_DOWN)
+        Backspace();
+    if (key == VK_DELETE && event == KEY_DOWN)
+        Delete();
+
+    // if (key == VK_MENU && event == KEY_DOWN)
+    //     isAltDown = TRUE;
+    // if (key == VK_MENU && event == KEY_UP)
+    //     isAltDown = FALSE;
+}
+
+///////////////////////////////////////
+
 
 static void leftkey()
 {
@@ -187,86 +281,4 @@ static void Backspace()
 static void Delete()
 {
     DeleteString(2);
-}
-
-void CharInputEvent(char key)
-{
-    switch (key)
-    {
-    case 15:
-        opencbk();
-        return;
-    case 20:
-        closecbk();
-        return;
-    case 14:
-        newcbk();
-        return;
-    case 19:
-        savecbk();
-        return;
-    case 26:
-        undocbk();
-        return;
-    case 25:
-        redocbk();
-        return;
-    case 6:
-        searchcbk();
-        return;
-    case 22:
-        pastecbk();
-        return;
-    case 3:
-        copycbk();
-        return;
-    case 24:
-        cutcbk();
-        return;
-    case 4:
-        deletecbk();
-        return;
-    case 1:
-        selectcbk();
-        return;
-
-    default:
-        break;
-    }
-    if (key < 32 && key >= 0)
-        return;
-    string s = (string)malloc(2 * sizeof(char));
-    *s = key;
-    *(s + 1) = 0;
-    InputString(s);
-    free(s);
-}
-
-void KeyBoardEvent(int key, int event)
-{
-    text_string = GetStrText();
-    if (key == VK_LEFT && event == KEY_DOWN)
-        leftkey();
-    if (key == VK_RIGHT && event == KEY_DOWN)
-        rightkey();
-    if (key == VK_UP && event == KEY_DOWN)
-        upkey();
-    if (key == VK_DOWN && event == KEY_DOWN)
-        downkey();
-
-    if (key == VK_ESCAPE && event == KEY_DOWN)
-        cancelcbk();
-    if (key == VK_RETURN && event == KEY_DOWN)
-        Enter();
-    if (key == VK_TAB && event == KEY_DOWN)
-        Tab();
-    if (key == VK_BACK && event == KEY_DOWN)
-        Backspace();
-    if (key == VK_DELETE && event == KEY_DOWN)
-        Delete();
-
-    if (key == VK_MENU && event == KEY_DOWN)
-        isAltDown = TRUE;
-    if (key == VK_MENU && event == KEY_UP)
-        isAltDown = FALSE;
 }

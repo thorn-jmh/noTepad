@@ -1,3 +1,4 @@
+#include <Windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -7,46 +8,45 @@
 #include "genlib.h"
 #include "graphics.h"
 #include "extgraph.h"
-#include "pages.h"
-#include "file.h"
+#include "cursor.h"
 #include "leftbar.h"
 #include "topbar.h"
 #include "bar.h"
-#include "sliper.h"
-#include "keyboard.h"
 
+static int FindThemeName(string name);
+
+// Theme num
 static int theme_num = 2;
+// Theme name
 static string theme_tables[] = {
     "Test",
     "Plain"};
 
+// Themes
 static BAR_THEME ui_themes[] = {
     {"Cyan", "Cyan", "Violet", "White", "Deep Cyan", "Hack", "White", "Black", "Blue", "Gray", "Black"},
     {"Black", "White", "Blue", "Black", "Gray", "JetBrains Mono", "White", "Black", "Blue", "Light Gray", "Black"},
 };
 
-static int bar_theme_id = 0;
+static int bar_theme_id = 0;          // current theme id
+static BAR_STATUS BarStatus = ORIGIN; //initial bar status
 
-static int FindThemeName(string name)
+// mouse lock
+// lock if key status doesn't update
+static bool MOUSE_MUX = FALSE;
+
+// get mouse lock status
+bool getmux()
 {
-    string tpptr = name;
-    while (*tpptr != '\0')
-    {
-        if ((*tpptr - 'a') < 0)
-            *tpptr += 32;
-        tpptr++;
-    }
-    *name -= 32;
-    for (int i = 0; i < theme_num; i++)
-    {
-        if (strcmp(theme_tables[i], name) == 0)
-        {
-            return i;
-        }
-    }
-    return -1;
+    return MOUSE_MUX;
+}
+// lock mouse
+void lockmux()
+{
+    MOUSE_MUX = TRUE;
 }
 
+// change theme by name
 void ChangeThemeByName(string name)
 {
     int id = FindThemeName(name);
@@ -54,18 +54,19 @@ void ChangeThemeByName(string name)
         bar_theme_id = id;
 }
 
+// get current theme name
 string GetThemeName()
 {
     return theme_tables[bar_theme_id];
 }
 
+// get current theme info
 BAR_THEME GetBarTheme()
 {
     return ui_themes[bar_theme_id];
 }
 
-static BAR_STATUS BarStatus = ORIGIN;
-
+// set current bar status
 void SetBarStatus(BAR_STATUS status)
 {
     BarStatus = status;
@@ -88,11 +89,13 @@ void SetBarStatus(BAR_STATUS status)
     // (!(BarStatus & ~CLEAR_EXT))
 }
 
+// get current barstatus
 BAR_STATUS GetBarStatus()
 {
     return BarStatus;
 }
 
+// redraw all bars
 void UpdateAllBar()
 {
     drawTopBars();
@@ -121,25 +124,15 @@ void UpdateAllBar()
     }
 }
 
-static bool MOUSE_MUX=FALSE;
-bool getmux(){
-    return MOUSE_MUX;
-}
-void  lockmux(){
-    MOUSE_MUX=TRUE;
-}
-
-void mouse_test(int x, int y, int button, int event)
+void MouseEvent(int x, int y, int button, int event)
 {
     MOUSE_T *mst = GetCurrentMouse();
-    CURSOR_T* crst = GetCurrentCursor();
+    CURSOR_T *crst = GetCurrentCursor();
     mst->X = ScaleXInches(x);
     mst->Y = ScaleYInches(y);
     mst->button = button;
     mst->event = event;
-    MOUSE_MUX=FALSE;
-    printf("%lf %lf\n", mst->X, mst->Y);
-    printf("%lld %lld\n", crst->PTR_1, crst->PTR_2);
+    MOUSE_MUX = FALSE;
 
     if (!InTopArea(mst->X, mst->Y) && !InNotiArea(mst->X, mst->Y) && event == BUTTON_DOWN)
     {
@@ -154,4 +147,27 @@ void mouse_test(int x, int y, int button, int event)
     UpdateAllBar();
     sliper();
     DrawSliper();
+}
+
+/////////////////////////////////
+
+// find theme by name
+static int FindThemeName(string name)
+{
+    string tpptr = name;
+    while (*tpptr != '\0')
+    {
+        if ((*tpptr - 'a') < 0)
+            *tpptr += 32;
+        tpptr++;
+    }
+    *name -= 32;
+    for (int i = 0; i < theme_num; i++)
+    {
+        if (strcmp(theme_tables[i], name) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
 }

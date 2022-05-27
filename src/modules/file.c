@@ -1,5 +1,3 @@
-#include "file.h"
-
 #include <Windows.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -10,6 +8,7 @@
 #include "genlib.h"
 #include "linkedlist.h"
 #include "finder.h"
+#include "file.h"
 
 #define MAX_TIME_INTERVAL 1             // max time interval between two correlated history
 #define INIT_FILEBUF_SIZE 2048          // initial file buffer bytes
@@ -120,7 +119,7 @@ void ChangeCurrentFile(int ith)
   crst->PTR_1 = crst->PTR_2 = ptr;
 }
 
-// 
+// get ith file's filename
 string GetFileName(int ith)
 {
   linkedlistADT tpNode = FILES_LIST;
@@ -139,14 +138,17 @@ string GetFileName(int ith)
   return ++ptr;
 }
 
+// get raw text of current file
 string GetStrText() { return CurrentFile->OriginText; }
 
+// add string to current file
 void AddStrToText(string newstr, size_t ptr)
 {
   AddNewHistory(ADD_HIS, ptr, newstr);
   AddStrToTextWithOutHis(newstr, ptr);
 }
 
+// delete string from current file
 void DeleteFromText(size_t ptr1, size_t ptr2)
 {
   //从原文本copy下删除部分
@@ -159,6 +161,7 @@ void DeleteFromText(size_t ptr1, size_t ptr2)
   DeleteFromTextWithOutHis(ptr1, ptr2);
 }
 
+// open a file
 bool OpenTheFile(string filepath)
 {
   if (filepath == NULL)
@@ -197,6 +200,7 @@ bool OpenTheFile(string filepath)
   return TRUE;
 }
 
+// save a file
 // Do not change filepath if pass NULL
 bool SaveTheFile(string filepath)
 {
@@ -221,6 +225,9 @@ bool SaveTheFile(string filepath)
   return TRUE;
 }
 
+// close current file
+// - if force is false
+// - will not close if current file isn't saved
 bool CloseTheFile(bool force)
 {
   if (!(CurrentFile->is_save || force))
@@ -247,6 +254,7 @@ bool CloseTheFile(bool force)
   return TRUE;
 }
 
+// redo history
 void RedoHistory()
 {
   if (HIS_NODE->frt == HIS_LIST)
@@ -268,6 +276,7 @@ void RedoHistory()
   } while (HIS_NODE->frt != HIS_LIST && HIS_NODE->frt->order == HIS_NODE->order);
 }
 
+// undo
 void UndoHistory()
 {
   if (HIS_NODE->nxt == NULL)

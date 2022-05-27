@@ -3,11 +3,12 @@
 
 #include "genlib.h"
 
+// button tpye
 typedef struct
 {
-    string name;
-    string hotkey;
-    void (*func)();
+    string name;    // button name
+    string hotkey;  // button hotkey
+    void (*func)(); // button callback function
 } BOTTON_T;
 
 void fileextcbk();

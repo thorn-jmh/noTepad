@@ -2,12 +2,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#include "cursor.h"
 #include "pages.h"
 
-
-
-static double slipermargin = 0.05;
-static Block theblock;
 
 
 
@@ -21,6 +18,10 @@ typedef struct{//静态全局记录滑块顶端的位置
     double  top;
     double  buttom;
 } Block;
+
+static double slipermargin = 0.05;
+static Block theblock;
+
 
 //滑条部分
 void drawRect(double x, double y, double w, double h)

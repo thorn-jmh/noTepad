@@ -3,6 +3,7 @@
 
 #include "genlib.h"
 
+// define bar theme
 typedef struct _BAR_THEME BAR_THEME;
 struct _BAR_THEME
 {
@@ -20,6 +21,7 @@ struct _BAR_THEME
     string cursor_color;
 };
 
+// define bar status
 typedef enum
 {
     ORIGIN = 0,       //0
@@ -31,8 +33,11 @@ typedef enum
     CLEAR_EXT = 24,   // 11000
 } BAR_STATUS;
 
-void SetBarStatus(BAR_STATUS status);
+bool getmux();
+void  lockmux();
 
+
+void SetBarStatus(BAR_STATUS status);
 BAR_STATUS GetBarStatus();
 
 
@@ -40,11 +45,9 @@ BAR_THEME GetBarTheme();
 void ChangeThemeByName(string name);
 string GetThemeName();
 
-bool getmux();
-void  lockmux();
-
 void UpdateAllBar();
 
-void  mouse_test(int x, int y, int button, int event);
+void MouseEvent(int x, int y, int button, int event);
+
 
 #endif

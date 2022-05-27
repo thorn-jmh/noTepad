@@ -1,5 +1,3 @@
-#include "editor.h"
-
 #include <Windows.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -8,18 +6,25 @@
 #include "file.h"
 #include "cursor.h"
 #include "finder.h"
-#include "printer.h"
+#include "editor.h"
 
+////// clipboard ////////
 static string GetStrFromClipBoard();
 static bool AddStrToClipBoard(string str);
+
+////// bar text ///////
 static void PasteBarText();
 static void CopyBarText();
 static void InputBarText(string newstr);
 static void DeleteBarText(int direct);
 
-static string BARTEXT = NULL;
-#define MAX_BARTEXT 120 //Byte
+///// others //////
+static void checkCursor();
 
+static string BARTEXT = NULL; // bar text
+#define MAX_BARTEXT 120       //Byte
+
+// Init bar text
 void InitBarText()
 {
   if (BARTEXT != NULL)
@@ -33,11 +38,13 @@ void InitBarText()
   crst->PTR_1 = crst->PTR_2 = 0;
 }
 
+// get bar text
 string GetBarText()
 {
   return BARTEXT;
 }
 
+// close bar text
 void CloseBarText()
 {
   CURSOR_T *crst = GetCurrentCursor();
@@ -46,21 +53,7 @@ void CloseBarText()
   BARTEXT = NULL;
 }
 
-static void checkCursor()
-{
-  CURSOR_T *crst = GetCurrentCursor();
-  LINE_T *lnt = GetCurrentLine();
-
-  int nowline = crst->Line;
-  int fline = lnt->Fline + 1;
-  int lline = lnt->Fline + lnt->Cline - 2;
-
-  if (nowline < fline)
-    FocusLine(nowline, 0);
-  else if (nowline > lline)
-    FocusLine(nowline, 1);
-}
-
+// input string
 void InputString(string newstr)
 {
   CURSOR_T *crst = GetCurrentCursor();
@@ -83,7 +76,8 @@ void InputString(string newstr)
   AddStrToText(newstr, ptrf);
 }
 
-//0不移动，1向前，2向后
+// delete stirng
+// 0不移动，1向前，2向后
 void DeleteString(int direct)
 {
   CURSOR_T *crst = GetCurrentCursor();
@@ -122,6 +116,7 @@ void DeleteString(int direct)
   DeleteFromText(ptrf, ptrb);
 }
 
+// copy string
 void CopyTheString()
 {
   CURSOR_T *crst = GetCurrentCursor();
@@ -146,6 +141,7 @@ void CopyTheString()
   free(text);
 }
 
+// paste string
 void PasteTheString()
 {
   CURSOR_T *crst = GetCurrentCursor();
@@ -171,6 +167,8 @@ void PasteTheString()
   crst->PTR_2 = ptrf + strlen(newtext);
   free(newtext);
 }
+
+////////// bar text /////////////////////
 
 static void DeleteBarText(int direct)
 {
@@ -264,6 +262,10 @@ static void PasteBarText()
   free(newstr);
 }
 
+//////////////////////////////////////
+
+//////////// clipboard ///////////////
+
 static string GetStrFromClipBoard()
 {
   string clipboardbuf;
@@ -331,4 +333,24 @@ static bool AddStrToClipBoard(string str)
   GlobalFree(hmem);
 
   return TRUE;
+}
+
+////////////////////////////////////
+
+//////// other ///////////
+
+// check cursor place while edit
+static void checkCursor()
+{
+  CURSOR_T *crst = GetCurrentCursor();
+  LINE_T *lnt = GetCurrentLine();
+
+  int nowline = crst->Line;
+  int fline = lnt->Fline + 1;
+  int lline = lnt->Fline + lnt->Cline - 2;
+
+  if (nowline < fline)
+    FocusLine(nowline, 0);
+  else if (nowline > lline)
+    FocusLine(nowline, 1);
 }
