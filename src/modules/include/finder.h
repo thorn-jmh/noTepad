@@ -1,11 +1,6 @@
 #ifndef _finder_h
 #define _finder_h
 
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "linkedlist.h"
 #include "genlib.h"
 

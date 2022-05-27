@@ -7,20 +7,36 @@
 #include "file.h"
 #include "finder.h"
 
+// define found record.
+// - ptr is the pointer
+// - to where found substring.
 typedef struct
 {
     size_t ptr;
 } * REC_NODE;
 
+// found record linkedlist and current node
 static linkedlistADT FOUND_LIST, FOUND_NODE;
+
+
+// found string num and current node id
 static int REC_LEN=-1, REC_NUM=-1;
+
+// high light list
+// - record the ptr of highlight
+// - point, even ptr means end highlight
+// - odd ptr means start highlight
 static linkedlistADT HIGHLIGHT;
 
+// return highlight info
+// - its a copy of highlight list,
+// - please free after using.
 linkedlistADT GetCurrentHighlight()
 {
     return CopyLinkedList(HIGHLIGHT);
 }
 
+// find target string in file text
 void FindSubStr(string target)
 {
     FreeLinkedList(FOUND_LIST);
@@ -54,6 +70,8 @@ void FindSubStr(string target)
     REC_NUM = 0;
 }
 
+// reset found mode
+// free current found list
 void FreeFoundList()
 {
     if(HIGHLIGHT == NULL) return;
@@ -65,16 +83,19 @@ void FreeFoundList()
     HIGHLIGHT = NULL;
 }
 
+// return total found num
 int TotalFound()
 {
     return REC_LEN;
 }
 
+// return current found node id
 int NowFound()
 {
     return REC_NUM;
 }
 
+// return current found substring ptr
 size_t WhereFoundStr()
 {
     if (FOUND_NODE == NULL)
@@ -82,6 +103,7 @@ size_t WhereFoundStr()
     return ((REC_NODE)FOUND_NODE->dataptr)->ptr;
 }
 
+// next found node
 void NextFoundStr()
 {
     if (FOUND_NODE == NULL)
@@ -92,6 +114,7 @@ void NextFoundStr()
     REC_NUM = (REC_NUM + 1) % REC_LEN;
 }
 
+// last found node
 void LastFoundStr()
 {
     if (REC_LEN == 0)

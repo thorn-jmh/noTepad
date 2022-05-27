@@ -3,17 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stddef.h>
-#include <locale.h>
 
-#include "genlib.h"
-#include "printer.h"
+#include"graphics.h"
+#include"extgraph.h"
 #include "linkedlist.h"
-#include "finder.h"
+#include "pages.h"
 #include "cursor.h"
+#include "finder.h"
 #include "file.h"
+#include "printer.h"
 
-#define Epsilon 0.00000000001
 
 static string FONT_COLOR = "Black";        //字体颜色
 static string BK_GROUND_COLOR = "White";   //背景颜色
@@ -35,15 +34,18 @@ static double BottomMargin = 0.1;
 
 static linkedlistADT STACK; //背景色栈
 
-static void drawRectangle(double x, double y, double w, double h, int fillflag, string color);
+static char sizestr[3]; //字号返回数据，限制在100以内
 
+
+static void drawRectangle(double x, double y, double w, double h, int fillflag, string color);
 static void setTextPen();
 static void drawBK(double wid, string color);
 static void printCursor();
+
+
 static bool checkMouse_Line();
 static bool checkMouseNoti();
 static bool checkMouse();
-
 static mouseWork();
 
 static void SetHighColor(string color);
@@ -52,11 +54,13 @@ static string CurrentHighColor();
 static void HighlightStart();
 static void HighlightEnd();
 
+// 修改光标显示状态
 void ChangeCursor()
 {
     CURSOR_PRINT ^= 1;
 }
 
+// 设置字体
 void SetTextFont(string font)
 {
     SetFont(FONT_NAME);
@@ -64,11 +68,13 @@ void SetTextFont(string font)
     FONT_NAME = GetFont();
 }
 
+// 获取字体
 string GetTextFont()
 {
     return FONT_NAME;
 }
 
+// 设置字号
 void SetTextSize(string size)
 {
     int fsize = 0;
@@ -84,7 +90,7 @@ void SetTextSize(string size)
     POINT_SIZE = GetPointSize();
 }
 
-static char sizestr[3];
+// 获取字号
 string GetTextSize()
 {
     sizestr[2] = '\0';
@@ -95,7 +101,7 @@ string GetTextSize()
     return sizestr;
 }
 
-//清楚文字区域内容
+// 清楚文字区域内容
 void CLearTextBar()
 {
     PAGE_T *pgt = GetPageInfo();
@@ -108,7 +114,7 @@ void CLearTextBar()
     drawRectangle(leftX, bottomY, rightX - leftX, topY - bottomY, TRUE, BK_GROUND_COLOR);
 }
 
-//将指定行移动到行内，0为最开头，1为最后
+// 将指定行移动到行内，0为最开头，1为最后
 bool FocusLine(int line, bool Mode)
 {
     LINE_T *lnt = GetCurrentLine();
@@ -127,6 +133,7 @@ bool FocusLine(int line, bool Mode)
     return TRUE;
 }
 
+// 打印文字并处理相应逻辑
 void PrintTheText(bool print)
 {
     string Otext = GetStrText();
@@ -170,7 +177,7 @@ void PrintTheText(bool print)
         printFlag = FALSE;
         size_t olen = OneCharLength(*text);
         string chs = (string)malloc((olen + 1) * sizeof(char));
-        memcpy_s(chs,olen+1,text,olen);
+        memcpy_s(chs, olen + 1, text, olen);
         // memcpy(chs, text, olen);
         *(chs + olen) = '\0';
 
@@ -304,6 +311,7 @@ void PrintTheText(bool print)
 
 //////////// Mouse Module ///////////////
 
+// 鼠标逻辑
 static mouseWork()
 {
     MOUSE_T *mst = GetCurrentMouse();
@@ -335,10 +343,70 @@ static mouseWork()
     }
 }
 
+// 检查鼠标行信息
+static bool checkMouse_Line()
+{
+    MOUSE_T *mst = GetCurrentMouse();
+    double mx, my, cx, cy;
+    cx = GetCurrentX();
+    cy = GetCurrentY();
+    mx = mst->X, my = mst->Y;
+    double actF, dctF;
+    actF = GetFontAscent();
+    dctF = GetFontDescent();
+
+    if (my > cy + actF)
+        return TRUE;
+    return FALSE;
+}
+
+// 检查鼠标是否在 noti 区域
+static bool checkMouseNoti()
+{
+    PAGE_T *pgt = GetPageInfo();
+    MOUSE_T *mst = GetCurrentMouse();
+    double mx, my, cx, cy;
+    cx = GetCurrentX();
+    cy = GetCurrentY();
+    mx = mst->X, my = mst->Y;
+
+    if (mx < pgt->TEXT.LT.X + LeftMargin || mx > pgt->TEXT.RB.X - RightMargin)
+        return FALSE;
+    if (my > pgt->TEXT.LT.Y - TopMargin || my < pgt->TEXT.RB.Y + BottomMargin)
+        return FALSE;
+    if (InNotiArea(mx, my))
+        return FALSE;
+
+    return TRUE;
+}
+
+// 检查鼠标点击位置
+static bool checkMouse()
+{
+    MOUSE_T *mst = GetCurrentMouse();
+    double mx, my, cx, cy;
+    cx = GetCurrentX();
+    cy = GetCurrentY();
+    mx = mst->X, my = mst->Y;
+
+    double actF, dctF;
+    actF = GetFontAscent();
+    dctF = GetFontDescent();
+
+    if (mx < cx && my > cy - dctF)
+        return TRUE;
+    else if (my > cy + actF)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+
 ////////////////////////////////////////
 
 ////////// High Light Module ////////////
 
+// 初始化高亮栈
 static void HighlightStart()
 {
     STACK = NewLinkedList();
@@ -348,11 +416,13 @@ static void HighlightStart()
     InsertNode(STACK, STACK, (void *)tp);
 }
 
+// 结束高亮栈
 static void HighlightEnd()
 {
     FreeLinkedList(STACK);
 }
 
+// 向高亮栈加入颜色
 static void SetHighColor(string color)
 {
     string tp = (string)malloc((strlen(color) + 1) * sizeof(char));
@@ -360,11 +430,13 @@ static void SetHighColor(string color)
     InsertNode(STACK, STACK, (void *)tp);
 }
 
+// 从高亮栈删除颜色
 static void DelHightColor()
 {
     DeleteCurrentNode(STACK, STACK->next);
 }
 
+// 获得高亮栈顶颜色
 static string CurrentHighColor()
 {
     return (string)(STACK->next->dataptr);
@@ -374,7 +446,8 @@ static string CurrentHighColor()
 
 /////////////// Draw Module ////////////////
 
-//will return pen to original place
+// 画一个长方形
+// 完成后归位画笔信息
 static void drawRectangle(double x, double y, double w, double h, int fillflag, string color)
 {
     double cx, cy;
@@ -402,6 +475,7 @@ static void drawRectangle(double x, double y, double w, double h, int fillflag, 
     SetPenColor(ccolor);
 }
 
+// 初始化文字区画笔
 static void setTextPen()
 {
     SetPenSize(0.001);
@@ -411,6 +485,7 @@ static void setTextPen()
     SetStyle(FONT_STYLE);
 }
 
+// 画文字背景
 static void drawBK(double wid, string color)
 {
     double dctF, htF;
@@ -421,7 +496,7 @@ static void drawBK(double wid, string color)
     PenMove(0, dctF);
 }
 
-//显示光标
+// 显示光标
 static void printCursor()
 {
     double actF, dctF, htF;
@@ -431,58 +506,4 @@ static void printCursor()
     PenMove(0, -dctF);
     drawRectangle(-1, -1, -CURSOR_WID, htF, TRUE, CURSOR_COLOR);
     PenMove(0, dctF);
-}
-
-static bool checkMouse_Line()
-{
-    MOUSE_T *mst = GetCurrentMouse();
-    double mx, my, cx, cy;
-    cx = GetCurrentX();
-    cy = GetCurrentY();
-    mx = mst->X, my = mst->Y;
-    double actF, dctF;
-    actF = GetFontAscent();
-    dctF = GetFontDescent();
-
-    if (my > cy + actF)
-        return TRUE;
-    return FALSE;
-}
-
-static bool checkMouseNoti()
-{
-    PAGE_T *pgt = GetPageInfo();
-    MOUSE_T *mst = GetCurrentMouse();
-    double mx, my, cx, cy;
-    cx = GetCurrentX();
-    cy = GetCurrentY();
-    mx = mst->X, my = mst->Y;
-
-    if (mx < pgt->TEXT.LT.X + LeftMargin || mx > pgt->TEXT.RB.X - RightMargin)
-        return FALSE;
-    if (my > pgt->TEXT.LT.Y - TopMargin || my < pgt->TEXT.RB.Y + BottomMargin)
-        return FALSE;
-    if (InNotiArea(mx, my))
-        return FALSE;
-
-    return TRUE;
-}
-static bool checkMouse()
-{
-    MOUSE_T *mst = GetCurrentMouse();
-    double mx, my, cx, cy;
-    cx = GetCurrentX();
-    cy = GetCurrentY();
-    mx = mst->X, my = mst->Y;
-
-    double actF, dctF;
-    actF = GetFontAscent();
-    dctF = GetFontDescent();
-
-    if (mx < cx && my > cy - dctF)
-        return TRUE;
-    else if (my > cy + actF)
-        return TRUE;
-    else
-        return FALSE;
 }

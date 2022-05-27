@@ -1,21 +1,8 @@
 #ifndef _file_h
 #define _file_h
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
-
 #include "genlib.h"
 
-//TODO: for debug
-//#ifndef _cursor_h
-//typedef struct {
-//	size_t PTR_1, PTR_2;
-//	double X, Y;
-//} CURSOR_T;
-//
-//CURSOR_T* GetCurrentCursor();
-//#endif
 
 void InitFileSys();
 

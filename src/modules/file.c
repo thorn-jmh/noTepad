@@ -11,27 +11,18 @@
 #include "linkedlist.h"
 #include "finder.h"
 
-// for debug
-//#ifndef _cursor_h
-//static CURSOR_T aqaq = {
-//    0, 0, 0, 0};
-//
-//CURSOR_T *GetCurrentCursor()
-//{
-//  return &aqaq;
-//}
-//#endif
+#define MAX_TIME_INTERVAL 1             // max time interval between two correlated history
+#define INIT_FILEBUF_SIZE 2048          // initial file buffer bytes
+#define UNSAVED_NEW_FILE "new_file.txt" // new file name
 
-#define MAX_TIME_INTERVAL 1
-#define INIT_FILEBUF_SIZE 2048
-#define UNSAVED_NEW_FILE "new_file.txt"
-
+// define type of history
 typedef enum
 {
   ADD_HIS,
   DEL_HIS
 } HISTORY_T;
 
+// define history double linked list cdt
 typedef struct _DLIST_HIS *DLIST_HIS;
 struct _DLIST_HIS
 {
@@ -43,6 +34,7 @@ struct _DLIST_HIS
   char content[0];
 };
 
+// define file type
 typedef struct
 {
   size_t TLength, UnderL;
@@ -52,14 +44,20 @@ typedef struct
   char OriginText[0];
 } * TEXT_FILE;
 
+// files num and current file id
 int FILES_NUM, FILE_I;
 
+// file which is activate
+// all works will be done in this file
 static TEXT_FILE CurrentFile;
 
+// opened files list and current file node
 static linkedlistADT FILES_LIST, FILE_NODE;
 
+// history of all files and current file's history
 static DLIST_HIS HIS_LIST, HIS_NODE;
 
+// a timestamp use to record history
 static time_t timestp;
 
 static void AddStrToTextWithOutHis(string newstr, size_t ptr);
@@ -81,6 +79,7 @@ static DLIST_HIS nextNode(DLIST_HIS headN, DLIST_HIS currentN);
 static DLIST_HIS lastNode(DLIST_HIS headN, DLIST_HIS currentN);
 /////////////////////////////////////////
 
+// init file system
 void InitFileSys()
 {
   timestp = time(NULL);
@@ -89,11 +88,13 @@ void InitFileSys()
   FILES_NUM = FILE_I = 0;
 }
 
+// return current file node id
 int CurrentFileI()
 {
   return FILE_I;
 }
 
+// get opened files num
 int GetFilesNum()
 {
   if (LinkedListLen(FILES_LIST) != FILES_NUM)
@@ -101,6 +102,7 @@ int GetFilesNum()
   return FILES_NUM;
 }
 
+// change current file
 void ChangeCurrentFile(int ith)
 {
   FILE_I = ith;
@@ -118,6 +120,7 @@ void ChangeCurrentFile(int ith)
   crst->PTR_1 = crst->PTR_2 = ptr;
 }
 
+// 
 string GetFileName(int ith)
 {
   linkedlistADT tpNode = FILES_LIST;

@@ -8,15 +8,57 @@
 #include "graphics.h"
 #include "extgraph.h"
 #include "pages.h"
+#include "cursor.h"
 #include "file.h"
 #include "bar.h"
 #include "leftbar.h"
 
-
-
+// basic height of a leftbar
 #define HPER 1
 
-//will return pen to original place
+static void drawFiletag(double y, double w, double h);
+static void drawEnd(double y, double w);
+static void drawFileBar(double y, double w, double h, string filename, bool high);
+static void drawFileBarName(double y, double w, double h, string filename);
+static void StartDrawFileBar();
+static void drawRectangle(double x, double y, double w, double h, int fillflag, string color);
+
+
+// Redraw leftbar area
+void UpdateFileBars()
+{
+    PAGE_T *pgt = GetPageInfo();
+    MOUSE_T *mst = GetCurrentMouse();
+    double startY = pgt->LEFTBAR.LT.Y;
+    double widthT = pgt->LEFTBAR.RB.X;
+    double heightT = startY - widthT;
+    int filenum = GetFilesNum();
+    double Hper = min(heightT / filenum, 1);
+    for (int i = 1; i <= filenum; i++)
+    {
+        string filename = GetFileName(i);
+        if (mst->X <= widthT && mst->Y >= (startY - i * Hper) && mst->Y < (startY - (i - 1) * Hper))
+        {
+            drawFileBar(startY - (i - 1) * Hper, widthT, Hper, filename, TRUE);
+            if (mst->event == BUTTON_DOWN && mst->button == LEFT_BUTTON)
+            {
+                ChangeCurrentFile(i);
+            }
+        }
+        else
+            drawFileBar(startY - (i - 1) * Hper, widthT, Hper, filename, FALSE);
+    }
+    drawFiletag(startY - (CurrentFileI() - 1) * Hper, widthT, Hper);
+    drawEnd(startY - filenum * Hper, widthT);
+}
+
+/////////////////////////////////////
+
+/////////// draw modules /////////////
+
+
+// draw a rectangle
+// will return pen to original place
 static void drawRectangle(double x, double y, double w, double h, int fillflag, string color)
 {
     double cx, cy;
@@ -44,7 +86,8 @@ static void drawRectangle(double x, double y, double w, double h, int fillflag, 
     SetPenColor(ccolor);
 }
 
-void StartDrawFileBar()
+// prepare to draw leftbar
+static void StartDrawFileBar()
 {
     BAR_THEME theme_tp = GetBarTheme();
 
@@ -55,7 +98,8 @@ void StartDrawFileBar()
     SetPointSize(13);
 }
 
-void drawFileBarName(double y, double w, double h, string filename)
+// draw text in a leftbar
+static void drawFileBarName(double y, double w, double h, string filename)
 {
     double actF = GetFontAscent();
     double dctF = GetFontDescent();
@@ -64,7 +108,8 @@ void drawFileBarName(double y, double w, double h, string filename)
     DrawAngleTextString(filename, h - actF);
 }
 
-void drawFileBar(double y, double w, double h, string filename, bool high)
+// draw a leftbar
+static void drawFileBar(double y, double w, double h, string filename, bool high)
 {
     StartDrawFileBar();
     BAR_THEME theme_tp = GetBarTheme();
@@ -76,7 +121,8 @@ void drawFileBar(double y, double w, double h, string filename, bool high)
     drawFileBarName(y, w, h, filename);
 }
 
-void drawEnd(double y, double w)
+// draw end tag at leftbar area
+static void drawEnd(double y, double w)
 {
     double dctF = GetFontDescent();
     BAR_THEME theme_tp = GetBarTheme();
@@ -85,7 +131,8 @@ void drawEnd(double y, double w)
     drawRectangle(0, y - dctF, w, dctF - y, TRUE, theme_tp.barbk);
 }
 
-void drawFiletag(double y, double w, double h)
+// fraw now file tag at leftbar area
+static void drawFiletag(double y, double w, double h)
 {
     double cx, cy, dctF;
     dctF = GetFontDescent();
@@ -99,31 +146,4 @@ void drawFiletag(double y, double w, double h)
     DrawLine(0, dctF - h);
 
     MovePen(cx, cy);
-}
-
-void UpdateFileBars()
-{
-    PAGE_T *pgt = GetPageInfo();
-    MOUSE_T *mst = GetCurrentMouse();
-    double startY = pgt->LEFTBAR.LT.Y;
-    double widthT = pgt->LEFTBAR.RB.X;
-    double heightT = startY - widthT;
-    int filenum = GetFilesNum();
-    double Hper = min(heightT / filenum, 1);
-    for (int i = 1; i <= filenum; i++)
-    {
-        string filename = GetFileName(i);
-        if (mst->X <= widthT && mst->Y >= (startY - i * Hper) && mst->Y < (startY - (i - 1) * Hper))
-        {
-            drawFileBar(startY - (i - 1) * Hper, widthT, Hper, filename, TRUE);
-            if (mst->event == BUTTON_DOWN && mst->button == LEFT_BUTTON)
-            {
-                ChangeCurrentFile(i);
-            }
-        }
-        else
-            drawFileBar(startY - (i - 1) * Hper, widthT, Hper, filename, FALSE);
-    }
-    drawFiletag(startY - (CurrentFileI() - 1) * Hper, widthT, Hper);
-    drawEnd(startY - filenum * Hper, widthT);
 }
