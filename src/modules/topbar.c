@@ -8,6 +8,7 @@
 #include "graphics.h"
 #include "extgraph.h"
 #include "finder.h"
+#include "editor.h"
 #include "cursor.h"
 #include "pages.h"
 #include "topbar.h"
