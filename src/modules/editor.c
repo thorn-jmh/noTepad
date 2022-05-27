@@ -27,6 +27,7 @@ void InitBarText()
 {
     if(BARTEXT != NULL) CloseBarText();
     BARTEXT = (string)malloc(MAX_BARTEXT * sizeof(char));
+    if (BARTEXT == NULL) Error("null ptr");
     *BARTEXT = '\0';
     CURSOR_T *crst = GetCurrentCursor();
     crst->focus = 2;

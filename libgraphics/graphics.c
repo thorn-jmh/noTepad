@@ -6,9 +6,8 @@
  * This file implements the graphics.h and extgraph.h interfaces
  * for the Borland/Windows platform.
  */
-
 #include <stdio.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
@@ -2105,7 +2104,6 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
     }
     FreeConsole();
     return messages.wParam;
-    ;
 }
 
 void registerKeyboardEvent(KeyboardEventCallback callback)

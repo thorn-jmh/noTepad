@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <Windows.h>
 
 #include "bar_callback.h"
 #include "printer.h"
@@ -139,7 +140,8 @@ static void selectcbk()
         crst->PTR_2++;
     }
 }
-static void searchcbk(){
+static void searchcbk()
+{
     InitBarText();
     InputString("");
 
@@ -169,12 +171,12 @@ static void font_set()
     {
         ptrb++, text++;
     }
-    CURSOR_T *crst=GetCurrentCursor();
-    crst->focus=2;
-    crst->PTR_1=0,crst->PTR_2=ptrb;
+    CURSOR_T *crst = GetCurrentCursor();
+    crst->focus = 2;
+    crst->PTR_1 = 0, crst->PTR_2 = ptrb;
     DeleteString(0);
 
-    InputString(GetTextFont());    
+    InputString(GetTextFont());
 }
 static void fontcbk()
 {
@@ -199,9 +201,9 @@ static void size_set()
     {
         ptrb++, text++;
     }
-    CURSOR_T *crst=GetCurrentCursor();
-    crst->focus=2;
-    crst->PTR_1=0,crst->PTR_2=ptrb;
+    CURSOR_T *crst = GetCurrentCursor();
+    crst->focus = 2;
+    crst->PTR_1 = 0, crst->PTR_2 = ptrb;
     DeleteString(0);
 
     InputString(GetTextSize());
@@ -219,8 +221,9 @@ static void sizecbk()
 
     set_botton_cbk = size_set;
 }
-static void theme_set(){
-   string text = GetBarText();
+static void theme_set()
+{
+    string text = GetBarText();
     ChangeThemeByName(text);
 
     size_t ptrb = 0;
@@ -228,14 +231,15 @@ static void theme_set(){
     {
         ptrb++, text++;
     }
-    CURSOR_T *crst=GetCurrentCursor();
-    crst->focus=2;
-    crst->PTR_1=0,crst->PTR_2=ptrb;
+    CURSOR_T *crst = GetCurrentCursor();
+    crst->focus = 2;
+    crst->PTR_1 = 0, crst->PTR_2 = ptrb;
     DeleteString(0);
 
-    InputString(GetThemeName()); 
+    InputString(GetThemeName());
 }
-static void themecbk(){
+static void themecbk()
+{
     InitBarText();
     InputString(GetThemeName());
 
@@ -255,6 +259,7 @@ static void helpcbk()
     SetBarStatus(status);
 
     system("cmd /c start https://github.com/");
+    Sleep(10000);
 }
 
 static void setcbk()

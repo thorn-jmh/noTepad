@@ -82,7 +82,7 @@ BAR_STATUS GetBarStatus(){
 static long long  tptptp;
 void UpdateAllBar()
 {
-    printf("updating %lld\n", tptptp++);
+    //printf("updating %lld\n", tptptp++);
     drawTopBars();
     UpdateFileBars();
 
@@ -118,11 +118,13 @@ void  mouse_test(int x, int y, int button, int event){
     mst->Y=ScaleYInches(y);
     mst->button=button;
     mst->event=event;
+
+    printf("%lf %lf\n", mst->X, mst->Y);
+
     DisplayClear();
     UpdatePageInfo();
     PrintTheText(1);
     UpdateAllBar();
-    cleanSliper();
     sliper();
     DrawSliper();
 }

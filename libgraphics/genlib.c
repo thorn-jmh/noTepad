@@ -150,7 +150,6 @@ void Error(string msg, ...)
   char errbuf[MaxErrorMessage + 1];
   string errmsg;
   int errlen;
-
   va_start(args, msg);
   vsprintf(errbuf, msg, args);
   va_end(args);

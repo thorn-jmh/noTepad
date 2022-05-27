@@ -12,6 +12,11 @@
 
 #ifndef _graphics_h
 #define _graphics_h
+
+#define _CRTDBG_MAP_ALLOC
+
+#include<stdlib.h>
+#include<crtdbg.h>
 /*
  * Overview
  * --------
