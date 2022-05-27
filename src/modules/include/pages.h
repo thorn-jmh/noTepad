@@ -37,6 +37,8 @@ void ResetNotiArea();
 
 bool InNotiArea(double x, double y);
 
+bool InTopArea(double x,double y);
+
 //noti
 void Noti(double mx, double my); //会按照传入的鼠标画提示栏边框
 

@@ -40,7 +40,8 @@ BAR_THEME GetBarTheme();
 void ChangeThemeByName(string name);
 string GetThemeName();
 
-
+bool getmux();
+void  lockmux();
 
 void UpdateAllBar();
 

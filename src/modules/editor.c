@@ -7,7 +7,8 @@
 
 #include "file.h"
 #include "cursor.h"
-
+#include "finder.h"
+#include "printer.h"
 
 static string GetStrFromClipBoard();
 static bool AddStrToClipBoard(string str);
@@ -16,36 +17,48 @@ static void CopyBarText();
 static void InputBarText(string newstr);
 static void DeleteBarText(int direct);
 
-
-static string BARTEXT=NULL;
+static string BARTEXT = NULL;
 #define MAX_BARTEXT 120 //Byte
-
-
-
 
 void InitBarText()
 {
-    if(BARTEXT != NULL) CloseBarText();
-    BARTEXT = (string)malloc(MAX_BARTEXT * sizeof(char));
-    if (BARTEXT == NULL) Error("null ptr");
-    *BARTEXT = '\0';
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 2;
-    crst->PTR_1 = crst->PTR_2 = 0;
+  if (BARTEXT != NULL)
+    CloseBarText();
+  BARTEXT = (string)malloc(MAX_BARTEXT * sizeof(char));
+  if (BARTEXT == NULL)
+    Error("null ptr");
+  *BARTEXT = '\0';
+  CURSOR_T *crst = GetCurrentCursor();
+  crst->focus = 2;
+  crst->PTR_1 = crst->PTR_2 = 0;
 }
 
 string GetBarText()
 {
-    return BARTEXT;
+  return BARTEXT;
 }
-
 
 void CloseBarText()
 {
-    CURSOR_T *crst = GetCurrentCursor();
-    crst->focus = 0;
-    free(BARTEXT);
-    BARTEXT = NULL;
+  CURSOR_T *crst = GetCurrentCursor();
+  crst->focus = 0;
+  free(BARTEXT);
+  BARTEXT = NULL;
+}
+
+static void checkCursor()
+{
+  CURSOR_T *crst = GetCurrentCursor();
+  LINE_T *lnt = GetCurrentLine();
+
+  int nowline = crst->Line;
+  int fline = lnt->Fline + 1;
+  int lline = lnt->Fline + lnt->Cline - 2;
+
+  if (nowline < fline)
+    FocusLine(nowline, 0);
+  else if (nowline > lline)
+    FocusLine(nowline, 1);
 }
 
 void InputString(string newstr)
@@ -58,6 +71,9 @@ void InputString(string newstr)
     InputBarText(newstr);
     return;
   }
+
+  FreeFoundList();
+  checkCursor();
 
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
@@ -79,13 +95,16 @@ void DeleteString(int direct)
     return;
   }
 
+  FreeFoundList();
+  checkCursor();
+
   size_t ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
   string Otext = GetStrText();
   if (direct == 1 && ptrf == ptrb && ptrf != 0)
   {
-    while (OneCharLength(*(Otext + ptrf - 1)) == -1)
+    if (OneCharLength(*(Otext + ptrf - 1)) == 2)
     {
       ptrf--;
     }
@@ -93,7 +112,7 @@ void DeleteString(int direct)
   }
   else if (direct == 2 && ptrf == ptrb && *(Otext + ptrb) != '\0')
   {
-    while (OneCharLength(*(Otext + ptrb + 1)) == -1)
+    if (OneCharLength(*(Otext + ptrb + 1)) == 2)
     {
       ptrb++;
     }
@@ -138,6 +157,9 @@ void PasteTheString()
     return;
   }
 
+  FreeFoundList();
+  checkCursor();
+
   int ptrf, ptrb;
   ptrf = min(crst->PTR_1, crst->PTR_2);
   ptrb = max(crst->PTR_1, crst->PTR_2);
@@ -150,105 +172,97 @@ void PasteTheString()
   free(newtext);
 }
 
-
-
-
-
-
 static void DeleteBarText(int direct)
 {
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
-    if (direct == 1 && ptrf == ptrb && ptrf != 0)
+  CURSOR_T *crst = GetCurrentCursor();
+  size_t ptrf, ptrb;
+  ptrf = min(crst->PTR_1, crst->PTR_2);
+  ptrb = max(crst->PTR_1, crst->PTR_2);
+  if (direct == 1 && ptrf == ptrb && ptrf != 0)
+  {
+    if (OneCharLength(*(BARTEXT + ptrf - 1)) == 2)
     {
-        while (OneCharLength(*(BARTEXT + ptrf - 1)) == -1)
-        {
-            ptrf--;
-        }
-        ptrf--;
+      ptrf--;
     }
-    else if (direct == 2 && ptrf == ptrb && *(BARTEXT + ptrb) != '/0')
+    ptrf--;
+  }
+  else if (direct == 2 && ptrf == ptrb && *(BARTEXT + ptrb) != '/0')
+  {
+    if (OneCharLength(*(BARTEXT + ptrb + 1)) == 2)
     {
-        while (OneCharLength(*(BARTEXT + ptrb + 1)) == -1)
-        {
-            ptrb++;
-        }
-        ptrb++;
+      ptrb++;
     }
+    ptrb++;
+  }
 
-    string tpstr = (string)malloc((strlen(BARTEXT + ptrb) + 1) * sizeof(char));
-    strcpy(tpstr, BARTEXT + ptrb);
-    strcpy(BARTEXT + ptrf, tpstr);
-    free(tpstr);
+  string tpstr = (string)malloc((strlen(BARTEXT + ptrb) + 1) * sizeof(char));
+  strcpy(tpstr, BARTEXT + ptrb);
+  strcpy(BARTEXT + ptrf, tpstr);
+  free(tpstr);
 
-    crst->PTR_1 = crst->PTR_2 = ptrf;
+  crst->PTR_1 = crst->PTR_2 = ptrf;
 }
 
 static void InputBarText(string newstr)
 {
-    size_t oldlen, newlen;
-    oldlen = strlen(BARTEXT);
-    newlen = strlen(newstr);
-    if (newlen + oldlen >= MAX_BARTEXT)
-        return;
+  size_t oldlen, newlen;
+  oldlen = strlen(BARTEXT);
+  newlen = strlen(newstr);
+  if (newlen + oldlen >= MAX_BARTEXT)
+    return;
 
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
+  CURSOR_T *crst = GetCurrentCursor();
+  size_t ptrf, ptrb;
+  ptrf = min(crst->PTR_1, crst->PTR_2);
+  ptrb = max(crst->PTR_1, crst->PTR_2);
 
-    if (ptrf != ptrb)
-        DeleteBarText(0);
+  if (ptrf != ptrb)
+    DeleteBarText(0);
 
-    crst = GetCurrentCursor();
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
+  crst = GetCurrentCursor();
+  ptrf = min(crst->PTR_1, crst->PTR_2);
+  ptrb = max(crst->PTR_1, crst->PTR_2);
 
-    string tpstr = (string)malloc((strlen(BARTEXT + ptrb) + 1) * sizeof(char));
-    strcpy(tpstr, BARTEXT + ptrb);
-    strcpy(BARTEXT + ptrf, newstr);
-    strcpy(BARTEXT + ptrf + newlen, tpstr);
-    free(tpstr);
-    crst->PTR_1 = crst->PTR_2 = ptrf + newlen;
+  string tpstr = (string)malloc((strlen(BARTEXT + ptrb) + 1) * sizeof(char));
+  strcpy(tpstr, BARTEXT + ptrb);
+  strcpy(BARTEXT + ptrf, newstr);
+  strcpy(BARTEXT + ptrf + newlen, tpstr);
+  free(tpstr);
+  crst->PTR_1 = crst->PTR_2 = ptrf + newlen;
 }
 
 static void CopyBarText()
 {
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
-    if (ptrf == ptrb)
-        return;
+  CURSOR_T *crst = GetCurrentCursor();
+  size_t ptrf, ptrb;
+  ptrf = min(crst->PTR_1, crst->PTR_2);
+  ptrb = max(crst->PTR_1, crst->PTR_2);
+  if (ptrf == ptrb)
+    return;
 
-    string tpstr = (string)malloc((ptrb - ptrf + 1) * sizeof(char));
-    memcpy(tpstr, BARTEXT + ptrf, ptrb - ptrf);
-    *(tpstr + ptrb - ptrf) = '\0';
+  string tpstr = (string)malloc((ptrb - ptrf + 1) * sizeof(char));
+  memcpy(tpstr, BARTEXT + ptrf, ptrb - ptrf);
+  *(tpstr + ptrb - ptrf) = '\0';
 
-    AddStrToClipBoard(tpstr);
-    free(tpstr);
+  AddStrToClipBoard(tpstr);
+  free(tpstr);
 }
 
 static void PasteBarText()
 {
-    CURSOR_T *crst = GetCurrentCursor();
-    size_t ptrf, ptrb;
-    ptrf = min(crst->PTR_1, crst->PTR_2);
-    ptrb = max(crst->PTR_1, crst->PTR_2);
+  CURSOR_T *crst = GetCurrentCursor();
+  size_t ptrf, ptrb;
+  ptrf = min(crst->PTR_1, crst->PTR_2);
+  ptrb = max(crst->PTR_1, crst->PTR_2);
 
-    string newstr = GetStrFromClipBoard();
-    InputBarText(newstr);
+  string newstr = GetStrFromClipBoard();
+  InputBarText(newstr);
 
-    crst->PTR_1 = ptrf;
-    crst->PTR_2 = ptrf + strlen(newstr);
+  crst->PTR_1 = ptrf;
+  crst->PTR_2 = ptrf + strlen(newstr);
 
-    free(newstr);
+  free(newstr);
 }
-
-
-
 
 static string GetStrFromClipBoard()
 {

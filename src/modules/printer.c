@@ -19,8 +19,8 @@ static string FONT_COLOR = "Black";        //字体颜色
 static string BK_GROUND_COLOR = "White";   //背景颜色
 static string HIGH_LIGHT_COLOR = "Orange"; //高亮颜色
 static string SELECTED_COLOR = "Gray";     //选中颜色
-static string FONT_NAME = "System";        //字体
-static int POINT_SIZE = 13;                //字号
+static string FONT_NAME = "Consolas";      //字体
+static int POINT_SIZE = 16;                //字号
 static int FONT_STYLE = 0;                 //字体样式
 static double CURSOR_WID = 0.017;          //光标粗细
 static string CURSOR_COLOR = "Black";      //光标颜色
@@ -51,6 +51,11 @@ static void DelHightColor();
 static string CurrentHighColor();
 static void HighlightStart();
 static void HighlightEnd();
+
+void ChangeCursor()
+{
+    CURSOR_PRINT ^= 1;
+}
 
 void SetTextFont(string font)
 {
@@ -165,7 +170,8 @@ void PrintTheText(bool print)
         printFlag = FALSE;
         size_t olen = OneCharLength(*text);
         string chs = (string)malloc((olen + 1) * sizeof(char));
-        memcpy(chs, text, olen);
+        memcpy_s(chs,olen+1,text,olen);
+        // memcpy(chs, text, olen);
         *(chs + olen) = '\0';
 
         //计算行长度

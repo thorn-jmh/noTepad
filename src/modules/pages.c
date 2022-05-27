@@ -69,6 +69,14 @@ void ResetNotiArea()
     thePage.NOTI.RB.Y = -1;
 }
 
+bool InTopArea(double x,double y){
+    if (x >= thePage.TOPBAR.LT.X && x <= thePage.TOPBAR.RB.X && y <= thePage.TOPBAR.LT.Y && y >= thePage.TOPBAR.RB.Y)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+
 bool InNotiArea(double x, double y)
 {
     if (thePage.NOTI.LT.X < 0)

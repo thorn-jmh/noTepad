@@ -107,14 +107,15 @@ void ChangeCurrentFile(int ith)
   FILE_NODE = ithNode(FILES_LIST, ith);
   UpdateFileSys(TRUE);
 
-  CURSOR_T *crst=GetCurrentCursor();
-  size_t ptr=0;
-  string text=CurrentFile->OriginText;
-  while(*text != '\0'){
+  CURSOR_T *crst = GetCurrentCursor();
+  size_t ptr = 0;
+  string text = CurrentFile->OriginText;
+  while (*text != '\0')
+  {
     ptr++;
     text++;
   }
-  crst->PTR_1=crst->PTR_2=ptr;
+  crst->PTR_1 = crst->PTR_2 = ptr;
 }
 
 string GetFileName(int ith)
@@ -200,7 +201,7 @@ bool SaveTheFile(string filepath)
   {
     filepath = CurrentFile->OriginText + CurrentFile->UnderL + 1;
   }
-  string tpptr=updateFilePath(filepath,FALSE);
+  string tpptr = updateFilePath(filepath, FALSE);
   free(tpptr);
   stream file = NULL;
   int err = fopen_s(&file, filepath, "w");
@@ -229,7 +230,15 @@ bool CloseTheFile(bool force)
   DeleteCurrentNode(FILES_LIST, FILE_NODE);
   FILES_NUM--;
   FILE_I = (FILE_I == 1 && FILES_NUM >= FILE_I) ? FILE_I : FILE_I - 1;
-  FILE_NODE = ithNode(FILES_LIST, FILE_I);
+  if (FILE_I == 0)
+  {
+    OpenTheFile(NULL);
+  }
+  else
+  {
+    ChangeCurrentFile(FILE_I);
+  }
+
   UpdateFileSys(TRUE);
 
   return TRUE;
@@ -293,7 +302,7 @@ static void AddStrToTextWithOutHis(string newstr, size_t ptr)
                          (CurrentFile->filenameL + 1) * sizeof(char));
     CurrentFile->UnderL *= 2;
   }
-  string tpstr=updateFilePath(filepath, FALSE);
+  string tpstr = updateFilePath(filepath, FALSE);
   free(tpstr);
   free(filepath);
 

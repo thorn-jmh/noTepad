@@ -25,6 +25,9 @@ void FindSubStr(string target)
 {
     FreeLinkedList(FOUND_LIST);
     FreeLinkedList(HIGHLIGHT);
+
+    if (!strcmp(target,"")) return;
+
     HIGHLIGHT = NewLinkedList();
     FOUND_LIST = NewLinkedList();
     string originText = GetStrText();
@@ -53,6 +56,8 @@ void FindSubStr(string target)
 
 void FreeFoundList()
 {
+    if(HIGHLIGHT == NULL) return;
+
     REC_LEN = REC_NUM = -1;
     FreeLinkedList(FOUND_LIST);
     FreeLinkedList(HIGHLIGHT);

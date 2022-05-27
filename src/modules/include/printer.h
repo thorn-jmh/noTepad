@@ -11,6 +11,8 @@
 #include"cursor.h"
 #include"pages.h"
 
+void ChangeCursor();
+
 string GetTextSize();
 string GetTextFont();
 
@@ -22,8 +24,6 @@ void SetTextSize(string size);
 void CLearTextBar();
 
 void PrintTheText(bool print);
-
-// void PrintText(Ustring text, int offset);
 
 bool FocusLine(int line, bool Mode);
 

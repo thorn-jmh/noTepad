@@ -16,6 +16,7 @@
 #include <time.h>
 #include <wincon.h>
 #include <Windows.h>
+#include <locale.h>
 
 #include "genlib.h"
 #include "gcalloc.h"
@@ -1189,6 +1190,11 @@ static LONG FAR PASCAL GraphicsEventProc(HWND hwnd, UINT msg,
             g_char((char)wParam);
         return 0;
 
+    case WM_SYSKEYDOWN:
+        if (g_keyboard != NULL)
+            g_keyboard((int)wParam, KEY_DOWN);
+        return 0;
+
     case WM_KEYDOWN: //400
         if (g_keyboard != NULL)
             g_keyboard((int)wParam, KEY_DOWN);
@@ -1266,6 +1272,9 @@ static LONG FAR PASCAL GraphicsEventProc(HWND hwnd, UINT msg,
         PostQuitMessage(0);
         return 0;
 
+    //case WM_IME_SETCONTEXT:
+    //    if (g_char != NULL)
+    //        g_char((char)wParam);
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -2090,6 +2099,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
                    int nFunsterStil)
 
 {
+    setlocale(LC_ALL, "en_US.UTF8");
     MSG messages; /* Here messages to the application are saved */
 
     Main();

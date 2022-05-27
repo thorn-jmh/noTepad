@@ -35,19 +35,21 @@
 
 size_t OneCharLength(char chr)
 {
-  if ((chr & ASCII_CHECK) == 0)
-  {
-    return (size_t)1;
-  }
-  size_t nByte = 0;
-  do
-  {
-    nByte++;
-    chr <<= 1;
-  } while ((chr & ASCII_CHECK) != 0);
-  if (nByte < 2 || nByte > 6)
-      return -1;
-  return nByte;
+  if(chr < 0 ) return 2;
+  return 1;
+  // if ((chr & ASCII_CHECK) == 0)
+  // {
+  //   return (size_t)1;
+  // }
+  // size_t nByte = 0;
+  // do
+  // {
+  //   nByte++;
+  //   chr <<= 1;
+  // } while ((chr & ASCII_CHECK) != 0);
+  // if (nByte < 2 || nByte > 6)
+  //     return -1;
+  // return nByte;
 }
 
 ////////////////////
