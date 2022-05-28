@@ -170,16 +170,17 @@ bool OpenTheFile(string filepath)
   }
 
   stream file = NULL;
-  int err = fopen_s(&file, filepath, "r");
-  if (err == 2)
-  {
-    fopen_s(&file, filepath, "w");
-    if (file != NULL)
-      fclose(file);
-    err = fopen_s(&file, filepath, "r");
-  }
-  if (err != 0)
-    return FALSE;
+  file=fopen(filepath,"r");
+  // int err = fopen_s(&file, filepath, "r");
+  // if (err == 2)
+  // {
+  //   fopen_s(&file, filepath, "w");
+  //   if (file != NULL)
+  //     fclose(file);
+  //   err = fopen_s(&file, filepath, "r");
+  // }
+  // if (err != 0)
+  //   return FALSE;
   //读入
   CurrentFile = (TEXT_FILE)malloc(sizeof(*(TEXT_FILE)NULL) +
                                   (INIT_FILEBUF_SIZE + 1) * sizeof(char) +
@@ -211,9 +212,10 @@ bool SaveTheFile(string filepath)
   string tpptr = updateFilePath(filepath, FALSE);
   free(tpptr);
   stream file = NULL;
-  int err = fopen_s(&file, filepath, "w");
-  if (err != 0)
-    return FALSE;
+  file=fopen(filepath,"w");
+  // int err = fopen_s(&file, filepath, "w");
+  // if (err != 0)
+  //   return FALSE;
 
   if (fputs(CurrentFile->OriginText, file) < 0)
   {

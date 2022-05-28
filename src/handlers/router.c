@@ -22,7 +22,7 @@ void InitStatus()
 
     InitGraphics();
     SetWindowTitle("noTepad.exe");
-    startTimer(114, 10);
+    startTimer(114, 50);
     startTimer(514, 500);
 
     registerTimerEvent(timeManager);

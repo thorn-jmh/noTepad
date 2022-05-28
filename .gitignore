@@ -36,7 +36,7 @@
 # VS files
 x64/
 *.vs
-*.vcxproj*
+*.vcxproj.*
 
 # Log files
 *.log

@@ -5,7 +5,7 @@
 # compilation flags
 CC :=gcc
 LD :=gcc
-CFLAGS:= -w # -finput-charset=zh-CN -fexec-charset=zh-CN
+CFLAGS:= -w # -finput-charset=UTF-8 -fexec-charset=UTF-8
 LDFLAGS:=  -s -lcomctl32 -lgdi32 -lkernel32 -Wl,--subsystem,windows
 # file path 
 SRC_DIR :=src
