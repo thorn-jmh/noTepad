@@ -1,7 +1,11 @@
+# Make Sure Your ANSI Encoding method
+# same as that of src/handlers/bar_callback.c
+# and change CFLAGS charset to your encoding method
+#
 # compilation flags
 CC :=gcc
 LD :=gcc
-CFLAGS:= -w -finput-charset=UTF-8
+CFLAGS:= -w # -finput-charset=zh-CN -fexec-charset=zh-CN
 LDFLAGS:=  -s -lcomctl32 -lgdi32 -lkernel32 -Wl,--subsystem,windows
 # file path 
 SRC_DIR :=src

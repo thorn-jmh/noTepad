@@ -48,7 +48,7 @@ void closecbk()
     BAR_STATUS status = GetBarStatus();
     status &= CLEAR_EXT;
     SetBarStatus(status);
-    CloseTheFile(FALSE); //TODO: ËØ¢ÈóÆ
+    CloseTheFile(FALSE); //TODO: —ØŒ 
 }
 void newcbk()
 {
@@ -341,111 +341,111 @@ void cancelcbk()
 // define all buttons may used
 
 BOTTON_T FILE_BOTTON = {
-    .name = "Êñá‰ª∂",
+    .name = "Œƒº˛",
     .hotkey = "Alt+F",
     .func = fileextcbk,
 };
 BOTTON_T OPEN_BOTTON = {
-    .name = "ÊâìÂºÄ",
+    .name = "¥Úø™",
     .hotkey = "Ctrl+O",
     .func = opencbk,
 };
 BOTTON_T CLOSE_BOTTON = {
-    .name = "ÂÖ≥Èó≠",
+    .name = "πÿ±’",
     .hotkey = "Ctrl+T",
     .func = closecbk,
 };
 BOTTON_T NEW_BOTTON = {
-    .name = "Êñ∞Âª∫",
+    .name = "–¬Ω®",
     .hotkey = "Ctrl+N",
     .func = newcbk,
 };
 BOTTON_T SAVE_BOTTON = {
-    .name = "‰øùÂ≠ò",
+    .name = "±£¥Ê",
     .hotkey = "Ctrl+S",
     .func = savecbk,
 };
 BOTTON_T SAVEAS_BOTTON = {
-    .name = "Âè¶Â≠ò‰∏∫",
+    .name = "¡Ì¥ÊŒ™",
     .hotkey = "",
     .func = saveascbk,
 };
 
 BOTTON_T EDIT_BOTTON = {
-    .name = "ÁºñËæë",
+    .name = "±‡º≠",
     .hotkey = "Alt+E",
     .func = editextcbk,
 };
 BOTTON_T Undo_BOTTON = {
-    .name = "Êí§ÈîÄ",
+    .name = "≥∑œ˙",
     .hotkey = "Ctrl+Z",
     .func = undocbk,
 };
 BOTTON_T Redo_BOTTON = {
-    .name = "ÈáçÂÅö",
+    .name = "÷ÿ◊ˆ",
     .hotkey = "Ctrl+Y",
     .func = redocbk,
 };
 BOTTON_T SEARCH_BOTTON = {
-    .name = "ÊêúÁ¥¢",
+    .name = "À—À˜",
     .hotkey = "Ctrl+F",
     .func = searchcbk,
 };
 BOTTON_T PASTE_BOTTON = {
-    .name = "Á≤òË¥¥",
+    .name = "’≥Ã˘",
     .hotkey = "Ctrl+V",
     .func = pastecbk,
 };
 BOTTON_T COPY_BOTTON = {
-    .name = "Â§çÂà∂",
+    .name = "∏¥÷∆",
     .hotkey = "Ctrl+C",
     .func = copycbk,
 };
 BOTTON_T CUT_BOTTON = {
-    .name = "Ââ™Âàá",
+    .name = "ºÙ«–",
     .hotkey = "Ctrl+X",
     .func = cutcbk,
 };
 BOTTON_T DELETE_BOTTON = {
-    .name = "Âà†Èô§",
+    .name = "…æ≥˝",
     .hotkey = "Ctrl+D",
     .func = deletecbk,
 };
 BOTTON_T SELECT_BOTTON = {
-    .name = "ÂÖ®ÈÄâ",
+    .name = "»´—°",
     .hotkey = "Ctrl+A",
     .func = selectcbk,
 };
 
 BOTTON_T CONF_BOTTON = {
-    .name = "ËÆæÁΩÆ",
+    .name = "…Ë÷√",
     .hotkey = "Alt+C",
     .func = confextcbk,
 };
 BOTTON_T FONT_BOTTON = {
-    .name = "Â≠ó‰Ωì",
+    .name = "◊÷ÃÂ",
     .hotkey = "",
     .func = fontcbk,
 };
 BOTTON_T SIZE_BOTTON = {
-    .name = "Â≠óÂè∑",
+    .name = "◊÷∫≈",
     .hotkey = "",
     .func = sizecbk,
 };
 BOTTON_T THEME_BOTTON = {
-    .name = "‰∏ªÈ¢ò",
+    .name = "÷˜Ã‚",
     .hotkey = "",
     .func = themecbk,
 };
 
 BOTTON_T HELP_BOTTON = {
-    .name = "Â∏ÆÂä©",
+    .name = "∞Ô÷˙",
     .hotkey = "Alt+H",
     .func = helpcbk,
 };
 
 BOTTON_T SET_BOTTON = {
-    .name = "Á°ÆÂÆö",
+    .name = "»∑∂®",
     .hotkey = NULL,
     .func = setcbk,
 };
@@ -460,7 +460,7 @@ BOTTON_T LAST_BOTTON = {
     .func = lastcbk,
 };
 BOTTON_T CANCEL_BOTTON = {
-    .name = "ÂÖ≥Èó≠",
+    .name = "πÿ±’",
     .hotkey = NULL,
     .func = cancelcbk,
 };
