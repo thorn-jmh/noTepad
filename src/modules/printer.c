@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include"graphics.h"
-#include"extgraph.h"
+#include "graphics.h"
+#include "extgraph.h"
 #include "linkedlist.h"
 #include "pages.h"
+#include "bar.h"
 #include "cursor.h"
 #include "finder.h"
 #include "file.h"
 #include "printer.h"
-
 
 static string FONT_COLOR = "Black";        //字体颜色
 static string BK_GROUND_COLOR = "White";   //背景颜色
@@ -36,12 +36,10 @@ static linkedlistADT STACK; //背景色栈
 
 static char sizestr[3]; //字号返回数据，限制在100以内
 
-
 static void drawRectangle(double x, double y, double w, double h, int fillflag, string color);
 static void setTextPen();
 static void drawBK(double wid, string color);
 static void printCursor();
-
 
 static bool checkMouse_Line();
 static bool checkMouseNoti();
@@ -104,6 +102,7 @@ string GetTextSize()
 // 清楚文字区域内容
 void CLearTextBar()
 {
+    setTextPen();
     PAGE_T *pgt = GetPageInfo();
     double topY, leftX, rightX, bottomY;
     topY = pgt->TEXT.LT.Y;
@@ -136,6 +135,8 @@ bool FocusLine(int line, bool Mode)
 // 打印文字并处理相应逻辑
 void PrintTheText(bool print)
 {
+    if (print)
+        CLearTextBar();
     string Otext = GetStrText();
     string text = Otext;
     CURSOR_T *crst = GetCurrentCursor();
@@ -401,7 +402,6 @@ static bool checkMouse()
         return FALSE;
 }
 
-
 ////////////////////////////////////////
 
 ////////// High Light Module ////////////
@@ -478,6 +478,11 @@ static void drawRectangle(double x, double y, double w, double h, int fillflag, 
 // 初始化文字区画笔
 static void setTextPen()
 {
+    BAR_THEME theme_tp = GetBarTheme();
+    FONT_COLOR = theme_tp.text_color;
+    BK_GROUND_COLOR = theme_tp.textbk;
+    HIGH_LIGHT_COLOR = theme_tp.text_high;
+    SELECTED_COLOR = theme_tp.text_select;
     SetPenSize(0.001);
     SetPenColor(FONT_COLOR);
     SetPointSize(POINT_SIZE);

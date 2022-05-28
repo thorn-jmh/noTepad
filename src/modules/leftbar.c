@@ -95,7 +95,7 @@ static void StartDrawFileBar()
     SetStyle(1);
     SetFont(theme_tp.bar_font);
     SetPenColor(theme_tp.text);
-    SetPointSize(13);
+    SetPointSize(14);
 }
 
 // draw text in a leftbar

@@ -965,7 +965,7 @@ static void InitDisplay(void)
     graphicsWindow = CreateWindow(
         GWClassName,
         windowTitle,
-        style,
+        WS_OVERLAPPEDWINDOW&~WS_MAXIMIZEBOX^WS_THICKFRAME,
         graphicsRect.left,
         graphicsRect.top,
         RectWidth(&graphicsRect),
@@ -1881,13 +1881,14 @@ static void InitColors(void)
     DefineColor("Brown", .35, .20, .05);
     DefineColor("Red", 1, 0, 0);
     DefineColor("Orange", 1, .40, .1);
-    DefineColor("Yellow", 1, 1, 0);
+    DefineColor("Yellow", 0.9, 0.9, 0);
     DefineColor("Green", 0, 1, 0);
     DefineColor("Blue", 0, 0, 1);
     DefineColor("Violet", .93, .5, .93);
     DefineColor("Magenta", 1, 0, 1);
     DefineColor("Cyan", 0, 0.8, 0.8);
     DefineColor("Deep Cyan", 0, 0.5, 0.5);
+    DefineColor("Gray Blue",0.6,0.6,1);
 }
 
 /*

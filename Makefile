@@ -2,7 +2,7 @@
 CC :=gcc
 LD :=gcc
 CFLAGS:= -w -finput-charset=UTF-8
-LDFLAGS:=  -s -lcomctl32 -lgdi32 -lkernel32
+LDFLAGS:=  -s -lcomctl32 -lgdi32 -lkernel32 -Wl,--subsystem,windows
 # file path 
 SRC_DIR :=src
 HAND_DIR := $(SRC_DIR)/handlers

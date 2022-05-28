@@ -22,13 +22,13 @@ static int FindThemeName(string name);
 static int theme_num = 2;
 // Theme name
 static string theme_tables[] = {
-    "Test",
-    "Plain"};
+    "Original",
+    "Plain",};
 
 // Themes
 static BAR_THEME ui_themes[] = {
-    {"Cyan", "Cyan", "Violet", "White", "Deep Cyan", "Hack", "White", "Black", "Blue", "Gray", "Black"},
-    {"Black", "White", "Blue", "Black", "Gray", "JetBrains Mono", "White", "Black", "Blue", "Light Gray", "Black"},
+    {"Cyan", "Cyan", "Violet", "White", "Deep Cyan", "Consolas", "White", "Black", "Gray Blue", "Gray", "Black"},
+    {"Black", "White", "Blue", "Black", "Gray", "Consolas", "White", "Black", "Yellow", "Light Gray", "Black"},
 };
 
 static int bar_theme_id = 0;          // current theme id

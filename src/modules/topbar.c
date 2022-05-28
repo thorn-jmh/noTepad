@@ -232,7 +232,7 @@ static void StartDrawTopBar()
     SetPenColor(theme_tp.text);
     SetStyle(1);
     SetFont(theme_tp.bar_font);
-    SetPointSize(13);
+    SetPointSize(15);
     SetPenSize(2);
 }
 

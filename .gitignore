@@ -27,7 +27,6 @@
 *.lib
 
 # Executables
-*.exe
 *.out
 *.app
 
@@ -37,7 +36,6 @@
 # VS files
 x64/
 *.vs
-*.sln
 *.vcxproj*
 
 # Log files
