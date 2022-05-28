@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#include "graphics.h"
+#include "extgraph.h"
 #include "cursor.h"
 #include "pages.h"
 

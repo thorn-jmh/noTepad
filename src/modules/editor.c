@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "file.h"
+#include "printer.h"
 #include "cursor.h"
 #include "finder.h"
 #include "editor.h"

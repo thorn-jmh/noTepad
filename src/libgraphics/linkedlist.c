@@ -174,7 +174,7 @@ void DeleteNode(linkedlistADT head, void *obj,
 	linkedlistADT nodeptr, prenodeptr;
 
 	if (obj == NULL)
-		return NULL;
+		return ;
 	prenodeptr = head;
 	nodeptr = head->next;
 	while (nodeptr != NULL)

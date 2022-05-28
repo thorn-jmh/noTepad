@@ -3,13 +3,16 @@
 #include <stddef.h>
 
 #include "graphics.h"
+#include "extgraph.h"
+#include "pages.h"
+#include "printer.h"
+#include "sliper.h"
 #include "file.h"
 #include "bar.h"
 #include "keyboard.h"
 #include "router.h"
 
 static void timeManager(int id);
-
 
 void InitStatus()
 {

@@ -46,6 +46,9 @@
  * Declaring it as a string emphasizes this atomicity.
  */
 
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+
 typedef wchar_t Unicode;
 typedef Unicode *Ustring;
 

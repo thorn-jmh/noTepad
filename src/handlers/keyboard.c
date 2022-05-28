@@ -3,6 +3,8 @@
 #include <string.h>
 
 #include "graphics.h"
+#include "extgraph.h"
+#include "graphics.h"
 #include "genlib.h"
 #include "cursor.h"
 #include "printer.h"
@@ -10,7 +12,6 @@
 #include "file.h"
 #include "bar_callback.h"
 #include "keyboard.h"
-
 
 // static bool isAltDown = FALSE;
 
@@ -23,7 +24,6 @@ static void Tab();
 static void Enter();
 static void Backspace();
 static void Delete();
-
 
 void CharInputEvent(char key)
 {
@@ -108,7 +108,6 @@ void KeyBoardEvent(int key, int event)
 }
 
 ///////////////////////////////////////
-
 
 static void leftkey()
 {
