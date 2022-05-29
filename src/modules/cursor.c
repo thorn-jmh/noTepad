@@ -1,26 +1,26 @@
 #include "cursor.h"
 
-static LINE_T theLine; //å®šä¹‰é™æ€å…¨å±€å˜é‡è¡Œä¿¡æ¯
+static LINE_T theLine; //¶¨Òå¾²Ì¬È«¾Ö±äÁ¿ĞĞĞÅÏ¢
 
-static CURSOR_T theCursor; //å®šä¹‰é™æ€å…¨å±€å˜é‡å…‰æ ‡
+static CURSOR_T theCursor; //¶¨Òå¾²Ì¬È«¾Ö±äÁ¿¹â±ê
 
-static MOUSE_T theMouse; //å®šä¹‰é™æ€å…¨å±€å˜é‡é¼ æ ‡
+static MOUSE_T theMouse; //¶¨Òå¾²Ì¬È«¾Ö±äÁ¿Êó±ê
 
-//è¿”å›è¡Œä¿¡æ¯æŒ‡é’ˆ
+//·µ»ØĞĞĞÅÏ¢Ö¸Õë
 LINE_T *GetCurrentLine(void)
 {
     LINE_T *pl = &theLine;
     return pl;
 };
 
-//è¿”å›å…‰æ ‡æŒ‡é’ˆ
+//·µ»Ø¹â±êÖ¸Õë
 CURSOR_T *GetCurrentCursor(void)
 {
     CURSOR_T *pc = &theCursor;
     return pc;
 };
 
-//è¿”é¼ æ ‡æŒ‡é’ˆ
+//·µÊó±êÖ¸Õë
 MOUSE_T *GetCurrentMouse(void)
 {
     MOUSE_T *pm = &theMouse;

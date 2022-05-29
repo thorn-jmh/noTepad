@@ -261,6 +261,9 @@ void PrintTheText(bool print)
                     drawBK(one_width, CurrentHighColor());
                     DrawTextString(chs);
                 }
+                else {
+                    PenMove(one_width, 0);
+                }
             }
         }
 
